@@ -26,11 +26,13 @@ func initDB() *gorm.DB {
 	return database
 }
 
-func startServer(handler *handler.UserHandler){
+func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler){
 	router := mux.NewRouter()
 
-	router.HandleFunc("/register",handler.RegisterUser).Methods("POST")
-	router.HandleFunc("/login",handler.Login).Methods("POST")
+	router.HandleFunc("/register",userHandler.RegisterUser).Methods("POST")
+	router.HandleFunc("/login",authHandler.Login).Methods("POST")
+	router.HandleFunc("/userProfile/{id}",userHandler.GetProfile).Methods("GET")
+	router.HandleFunc("/updateProfile",userHandler.UpdateProfile).Methods("PUT")
 	
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8080",router))
@@ -43,9 +45,11 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	repo:=&repo.UserRepository{DatabaseConnection: database}
-	service:=&service.UserService{UserRepo: repo}
-	handler := &handler.UserHandler{UserService: service}
-
-	startServer(handler)
+	userRepo:=&repo.UserRepository{DatabaseConnection: database}
+	userService:=&service.UserService{UserRepo: userRepo}
+	userHandler := &handler.UserHandler{UserService: userService}
+	authRepo := &repo.AuthRepository{DatabaseConnection: database}
+	authService :=&service.AuthService{AuthRepo: authRepo}
+	authHandler := &handler.AuthHandler{AuthService: authService}
+	startServer(userHandler,authHandler)
 }

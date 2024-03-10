@@ -26,11 +26,20 @@ func(userRepo *UserRepository) RegisterPerson(person *model.Person) error {
 	return nil
 }
 
-func (userRepo *UserRepository) Authentication(credentials *model.Credentials) (*model.User,error) {
-	var user model.User
-	dbResult := userRepo.DatabaseConnection.Where("user_name = ? AND password = ?",credentials.Username,credentials.Password).First(&user)
+func(repo UserRepository) UpdateProfile(person *model.Person) (*model.Person,error) {
+	dbResult :=repo.DatabaseConnection.Model(&model.Person{}).Where("user_id=?",person.UserID).Updates(person)
 	if dbResult.Error != nil {
 		return nil,dbResult.Error
 	}
-	return &user,nil
+	return person,nil
+}
+
+
+func(repo *UserRepository) GetPersonByUserId(userId *string) (*model.Person,error) {
+	person := model.Person{}
+	dbResult := repo.DatabaseConnection.First(&person, "user_id = ?", *userId)
+	if dbResult.Error !=nil {
+		return nil,dbResult.Error
+	}
+	return &person,nil
 }
