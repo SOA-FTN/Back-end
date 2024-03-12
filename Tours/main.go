@@ -3,7 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
+	"tours/handler"
 	"tours/model"
+	"tours/repo"
+	"tours/service"
 
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
@@ -35,5 +38,22 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
+
+	// Initialize repositories
+	tourRepo := repo.NewTourRepository(database)
+
+	// Initialize services
+	tourService := service.NewTourService(tourRepo)
+
+	// Initialize handlers
+	tourHandler := handler.NewTourHandler(tourService)
+
+	// Set up routes
+	router := mux.NewRouter()
+	router.HandleFunc("/tours", tourHandler.CreateTourHandler).Methods("POST")
+
+	// Start the server
+	log.Println("Server started on port 8081")
+	log.Fatal(http.ListenAndServe(":8081", router))
 
 }
