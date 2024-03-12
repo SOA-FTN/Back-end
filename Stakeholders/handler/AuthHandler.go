@@ -27,15 +27,25 @@ func(AuthHandler *AuthHandler) Login(writer http.ResponseWriter, req *http.Reque
 		return 
 	}
 
-	token,expirationTime, err := AuthHandler.AuthService.GenerateToken(user)
+	token, err := AuthHandler.AuthService.GenerateToken(user)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	response := map[string]interface{} {
+		"id" : user.ID,
+		"token":token,
+	}
+/*
+	expirationTime := time.Now().Add(time.Minute * 60 * 24) 
+
 	http.SetCookie(writer,&http.Cookie{
-		Name: "token",
+		Name:"token",
 		Value: token,
-		Expires : expirationTime,
+		Expires: expirationTime ,
 	})
+*/
+    writer.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(writer).Encode(response)
 }

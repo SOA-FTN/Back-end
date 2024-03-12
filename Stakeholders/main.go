@@ -26,16 +26,29 @@ func initDB() *gorm.DB {
 	return database
 }
 
-func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler){
+func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/register",userHandler.RegisterUser).Methods("POST")
-	router.HandleFunc("/login",authHandler.Login).Methods("POST")
-	router.HandleFunc("/userProfile/{id}",userHandler.GetProfile).Methods("GET")
-	router.HandleFunc("/updateProfile",userHandler.UpdateProfile).Methods("PUT")
+	router.HandleFunc("/register", userHandler.RegisterUser).Methods("POST","OPTIONS")
+	router.HandleFunc("/login", authHandler.Login).Methods("POST","OPTIONS")
+	router.HandleFunc("/userProfile/{id}", userHandler.GetProfile).Methods("GET")
+	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT")
+
+	router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	})
 	
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080",router))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func main() {
@@ -51,5 +64,7 @@ func main() {
 	authRepo := &repo.AuthRepository{DatabaseConnection: database}
 	authService :=&service.AuthService{AuthRepo: authRepo}
 	authHandler := &handler.AuthHandler{AuthService: authService}
+
+	
 	startServer(userHandler,authHandler)
 }
