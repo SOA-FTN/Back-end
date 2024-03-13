@@ -9,6 +9,7 @@ type Person struct {
 	UserID uint `json:"userId"`
 	Name string `json:"name"`
 	Surname string `json:"surname"`
+	Image string `json:"profileImage"`
 	Email string `json:"email"`
 	Bio string `json:"bio"`
 	Quote string `json:"quote"`

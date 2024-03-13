@@ -35,7 +35,7 @@ func(AuthHandler *AuthHandler) Login(writer http.ResponseWriter, req *http.Reque
 
 	response := map[string]interface{} {
 		"id" : user.ID,
-		"token":token,
+		"accessToken":token,
 	}
 /*
 	expirationTime := time.Now().Add(time.Minute * 60 * 24) 

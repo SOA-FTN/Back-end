@@ -12,9 +12,7 @@ import (
 type UserHandler struct {
 	UserService *service.UserService
 }
-
-//var jwtKey = []byte ("secret_key")
-//Registracija korisnika
+//REGISTRACIJA KORISNIKA
 func (userHandler *UserHandler) RegisterUser(writer http.ResponseWriter, req *http.Request) {
 	var userData struct {
 		User model.User
@@ -38,41 +36,7 @@ func (userHandler *UserHandler) RegisterUser(writer http.ResponseWriter, req *ht
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type" , "application/json")
 }
-/*
-//Login
-func(UserHandler *UserHandler) Login(writer http.ResponseWriter, req *http.Request){
-	var credentials model.Credentials
-	err := json.NewDecoder(req.Body).Decode(&credentials)
 
-	if err != nil{
-		print("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return 
-	}
-	user,err := UserHandler.UserService.Authentication(&credentials)
-	if err != nil || user.Password != credentials.Password || user.UserName != credentials.Username {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return 
-	}
-
-	claims :=UserHandler.UserService.CreateClaims(user)
-	expirationTime := time.Now().Add(time.Minute *5)
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256,*claims)
-	tokenString,err := token.SignedString(jwtKey)
-	if err != nil{
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	http.SetCookie(writer,&http.Cookie{
-		Name: "token",
-		Value: tokenString,
-		Expires : expirationTime,
-	})
-	
-}
-*/
 //Getovanje PERSON-a
 
 func (userHandler *UserHandler) GetProfile (writer http.ResponseWriter , req *http.Request){
