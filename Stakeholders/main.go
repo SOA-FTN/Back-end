@@ -29,14 +29,14 @@ func initDB() *gorm.DB {
 func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/register", userHandler.RegisterUser).Methods("POST","OPTIONS")
+	router.HandleFunc("/register", userHandler.Registration).Methods("POST","OPTIONS")
 	router.HandleFunc("/login", authHandler.Login).Methods("POST","OPTIONS")
 	router.HandleFunc("/userProfile/{id}", userHandler.GetProfile).Methods("GET","OPTIONS")
 	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT","OPTIONS")
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET,PUT,DELETE, OPTIONS,")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
 			if r.Method == "OPTIONS" {

@@ -18,21 +18,34 @@ func (service *UserService) GetPersonByUserId(userId *string) (*model.Person , e
 	return person,nil
 }
 //REGISTRACIJA
-func(service *UserService) RegisterUser (user *model.User, person *model.Person) error {
+func(service *UserService) Registration (registration *model.Registration) error {
 
-	err := service.UserRepo.RegisterUser(user)
+	newUser := model.User{
+		UserName: registration.Username,
+		Password: registration.Password,
+		IsActive: true,
+		Role:model.UserRole(1),
+	}
+	newPerson := model.Person{
+		Name:    registration.Name,
+		Surname: registration.Surname,
+		Email:   registration.Email,
+	}
+
+	err := service.UserRepo.RegisterUser(&newUser)
 	if err != nil{
 		return err
 	}
 
-	person.UserID = user.ID
+	newPerson.UserID = newUser.ID
 
-	err = service.UserRepo.RegisterPerson(person)
+	err = service.UserRepo.RegisterPerson(&newPerson)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
 //UPDATE
 func (service *UserService) UpdateProfile(person *model.Person) (*model.Person,error){
 	updatedPerson , err := service.UserRepo.UpdateProfile(person)

@@ -13,20 +13,17 @@ type UserHandler struct {
 	UserService *service.UserService
 }
 //REGISTRACIJA KORISNIKA
-func (userHandler *UserHandler) RegisterUser(writer http.ResponseWriter, req *http.Request) {
-	var userData struct {
-		User model.User
-		Person  model.Person
-	}
+func (userHandler *UserHandler) Registration(writer http.ResponseWriter, req *http.Request) {
+	var registration model.Registration
 
-	err := json.NewDecoder(req.Body).Decode(&userData)
+	err := json.NewDecoder(req.Body).Decode(&registration)
 	if err != nil {
 		println("Error while parsing json")
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = userHandler.UserService.RegisterUser(&userData.User , &userData.Person)
+	err = userHandler.UserService.Registration(&registration)
 	if err != nil {
 		println("Error while registering a new user")
 		writer.WriteHeader(http.StatusExpectationFailed)

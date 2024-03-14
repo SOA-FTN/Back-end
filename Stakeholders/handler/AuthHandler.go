@@ -37,15 +37,7 @@ func(AuthHandler *AuthHandler) Login(writer http.ResponseWriter, req *http.Reque
 		"id" : user.ID,
 		"accessToken":token,
 	}
-/*
-	expirationTime := time.Now().Add(time.Minute * 60 * 24) 
 
-	http.SetCookie(writer,&http.Cookie{
-		Name:"token",
-		Value: token,
-		Expires: expirationTime ,
-	})
-*/
     writer.Header().Set("Content-Type", "application/json")
     json.NewEncoder(writer).Encode(response)
 }

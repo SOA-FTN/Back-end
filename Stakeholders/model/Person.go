@@ -6,13 +6,13 @@ import (
 
 type Person struct {
 	gorm.Model
-	UserID uint `json:"userId"`
-	Name string `json:"name"`
-	Surname string `json:"surname"`
-	Image string `json:"profileImage"`
-	Email string `json:"email"`
-	Bio string `json:"bio"`
-	Quote string `json:"quote"`
+	UserID uint `json:"UserId"`
+	Name string `json:"Name"`
+	Surname string `json:"Surname"`
+	Image string `json:"ProfileImage"`
+	Email string `json:"Email"`
+	Bio string `json:"Bio"`
+	Quote string `json:"Quote"`
 }
 
 
