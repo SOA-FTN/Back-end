@@ -34,7 +34,9 @@ func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 	router.HandleFunc("/login", authHandler.Login).Methods("POST","OPTIONS")
 	router.HandleFunc("/userProfile/{id}", userHandler.GetProfile).Methods("GET","OPTIONS")
 	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT","OPTIONS")
-	router.HandleFunc("/app-ratings", rateHandler.RateApp).Methods("POST","OPTIONS")
+	router.HandleFunc("/rate-app", rateHandler.RateApp).Methods("POST","OPTIONS")
+	router.HandleFunc("/app-ratings", rateHandler.GetAllRates).Methods("GET","OPTIONS")
+	
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +62,6 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	println("Greska")
 	userRepo:=&repo.UserRepository{DatabaseConnection: database}
 	userService:=&service.UserService{UserRepo: userRepo}
 	userHandler := &handler.UserHandler{UserService: userService}

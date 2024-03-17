@@ -17,3 +17,15 @@ func(rateRepo *RateRepository) RateApp(rate *model.Rate) error {
 	}
 	return nil
 }
+
+func (rateRepo *RateRepository) GetAllRates() ([]model.Rate, error) {
+    var rates []model.Rate
+	
+
+    dbResult := rateRepo.DatabaseConnection.Select("id","user_id","rating","description").Find(&rates)
+    if dbResult.Error != nil {
+        return nil, dbResult.Error
+    }
+    
+    return rates, nil
+}

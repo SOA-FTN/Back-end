@@ -10,10 +10,11 @@ import (
 type RateHandler struct {
 	RateService *service.RateService
 }
-//REGISTRACIJA KORISNIKA
+
+//Ocjenjivanje 
 func (rateHandler *RateHandler) RateApp(writer http.ResponseWriter, req *http.Request) {
 	var rate model.Rate
-
+	println("Ovo je upis ocjena")
 	err := json.NewDecoder(req.Body).Decode(&rate)
 	if err != nil {
 		println("Error while parsing json")
@@ -30,4 +31,17 @@ func (rateHandler *RateHandler) RateApp(writer http.ResponseWriter, req *http.Re
 
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type" , "application/json")
+}
+
+//Dobavljanje ocjena
+func (rateHandler *RateHandler) GetAllRates (writer http.ResponseWriter , req *http.Request){
+	ratings ,err := rateHandler.RateService.GetAllRates()
+	writer.Header().Set("Content-Type" , "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(ratings)
+
 }
