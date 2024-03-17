@@ -23,16 +23,18 @@ func initDB() *gorm.DB {
 	}
 	database.AutoMigrate(&model.User{})
 	database.AutoMigrate(&model.Person{})
+	database.AutoMigrate(&model.Rate{})
 	return database
 }
 
-func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) {
+func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler, rateHandler *handler.RateHandler) {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/register", userHandler.Registration).Methods("POST","OPTIONS")
 	router.HandleFunc("/login", authHandler.Login).Methods("POST","OPTIONS")
 	router.HandleFunc("/userProfile/{id}", userHandler.GetProfile).Methods("GET","OPTIONS")
 	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT","OPTIONS")
+	router.HandleFunc("/app-ratings", rateHandler.RateApp).Methods("POST","OPTIONS")
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +50,7 @@ func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 	})
 	
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8082", router))
 }
 
 func main() {
@@ -58,13 +60,17 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
+	println("Greska")
 	userRepo:=&repo.UserRepository{DatabaseConnection: database}
 	userService:=&service.UserService{UserRepo: userRepo}
 	userHandler := &handler.UserHandler{UserService: userService}
 	authRepo := &repo.AuthRepository{DatabaseConnection: database}
 	authService :=&service.AuthService{AuthRepo: authRepo}
 	authHandler := &handler.AuthHandler{AuthService: authService}
+	rateRepo := &repo.RateRepository{DatabaseConnection: database}
+	rateService :=&service.RateService{RateRepo: rateRepo}
+	rateHandler := &handler.RateHandler{RateService: rateService}
 
 	
-	startServer(userHandler,authHandler)
+	startServer(userHandler,authHandler,rateHandler)
 }
