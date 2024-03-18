@@ -24,7 +24,7 @@ func(service *UserService) Registration (registration *model.Registration) error
 		UserName: registration.Username,
 		Password: registration.Password,
 		IsActive: true,
-		Role:model.UserRole(1),
+		Role:model.ParseUserRole(registration.Role),
 	}
 	newPerson := model.Person{
 		Name:    registration.Name,

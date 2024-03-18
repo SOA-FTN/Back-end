@@ -37,11 +37,25 @@ func (u *User) GetRoleName() string {
     }
 }
 
+func ParseUserRole(role string) UserRole {
+	switch role {
+	case "administrator":
+		return administrator
+	case "tourist":
+		return tourist
+	case "author":
+		return author
+	default:
+		return tourist // Defaultna vrijednost, možete promijeniti prema potrebi
+	}
+}
+
 type Registration struct {
 	Username string `json:"Username"`
 	Password string `json:"Password"`
 	Email string `json:"Email"`
 	Name string `json:"Name"`
 	Surname string `json:"Surname"`
+	Role string `json:"Role"`
 }
 
