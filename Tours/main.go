@@ -55,7 +55,7 @@ func main() {
 
 	// Set up routes
 	router := mux.NewRouter()
-	router.HandleFunc("/tours", tourHandler.CreateTourHandler).Methods("POST")
+	router.HandleFunc("/createTour", tourHandler.CreateTourHandler).Methods("POST")
 	router.HandleFunc("/tourpoints", tourPointHandler.CreateTourPointHandler).Methods("POST")
 	router.HandleFunc("/toursByUserId", tourHandler.GetToursByUserIDHandler).Methods("GET")
 
