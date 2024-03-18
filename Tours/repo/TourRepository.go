@@ -17,7 +17,11 @@ func NewTourRepository(db *gorm.DB) *TourRepository {
 }
 
 func (tr *TourRepository) CreateTour(tour *model.Tour) error {
-	return tr.DatabaseConnection.Create(tour).Error
+	dbResult := tr.DatabaseConnection.Create(tour)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
 }
 
 func (tr *TourRepository) GetToursByUserID(userID int) ([]model.Tour, error) {

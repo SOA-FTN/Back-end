@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"tours/model"
@@ -20,10 +21,22 @@ func NewTourHandler(ts *service.TourService) *TourHandler {
 
 // CreateTourHandler handles creating a new tour
 func (th *TourHandler) CreateTourHandler(w http.ResponseWriter, r *http.Request) {
-	var tour model.Tour
-	if err := json.NewDecoder(r.Body).Decode(&tour); err != nil {
+
+	var req model.CreateTourRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println(err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
+	}
+
+	// Map fields to the Tour struct
+	tour := model.Tour{
+		Name:            req.Name,
+		Description:     req.Description,
+		DifficultyLevel: model.DifficultyLevel(service.ConvertDifficultyLevelToInt(req.DifficultyLevel)),
+		Status:          model.TourStatus(service.ConvertStatusToInt(req.Status)),
+		Price:           req.Price,
+		UserId:          req.UserID,
 	}
 
 	if err := th.TourService.CreateTour(&tour); err != nil {
