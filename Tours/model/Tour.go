@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type DifficultyLevel int
@@ -21,6 +23,7 @@ const (
 )
 
 type Tour struct {
+	gorm.Model
 	Name              string          `json:"name"`
 	DifficultyLevel   DifficultyLevel `json:"difficultyLevel"`
 	Description       string          `json:"description"`

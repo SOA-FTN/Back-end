@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"tours/model"
 	"tours/service"
 )
@@ -32,4 +33,26 @@ func (th *TourHandler) CreateTourHandler(w http.ResponseWriter, r *http.Request)
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(tour)
+}
+
+// Handler Function to Get Tours by UserID
+func (th *TourHandler) GetToursByUserIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract userID from request, assuming it's a query parameter
+	userIDStr := r.URL.Query().Get("userId")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid userID", http.StatusBadRequest)
+		return
+	}
+
+	// Call service function to get tours by userID
+	tours, err := th.TourService.GetToursByUserID(userID)
+	if err != nil {
+		http.Error(w, "Failed to get tours by UserID", http.StatusInternalServerError)
+		return
+	}
+
+	// Encode tours into JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tours)
 }
