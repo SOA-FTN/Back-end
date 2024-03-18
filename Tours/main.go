@@ -56,8 +56,9 @@ func main() {
 	// Set up routes
 	router := mux.NewRouter()
 	router.HandleFunc("/createTour", tourHandler.CreateTourHandler).Methods("POST")
-	router.HandleFunc("/tourpoints", tourPointHandler.CreateTourPointHandler).Methods("POST")
+	router.HandleFunc("/createTourPoint", tourPointHandler.CreateTourPointHandler).Methods("POST")
 	router.HandleFunc("/toursByUserId", tourHandler.GetToursByUserIDHandler).Methods("GET")
+	router.HandleFunc("/tourPoints", tourPointHandler.GetTourPointsByTourIDHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8081")
