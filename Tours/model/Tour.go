@@ -24,12 +24,14 @@ const (
 
 type Tour struct {
 	gorm.Model
-	Name            string          `json:"name"`
-	DifficultyLevel DifficultyLevel `json:"difficultyLevel"`
-	Description     string          `json:"description"`
-	Status          TourStatus      `json:"status"`
-	Price           int             `json:"price"`
-	UserId          int             `json:"userId"`
+	Name              string          `json:"name"`
+	DifficultyLevel   DifficultyLevel `json:"difficultyLevel"`
+	Description       string          `json:"description"`
+	Status            TourStatus      `json:"status"`
+	Price             int             `json:"price"`
+	UserId            int             `json:"userId"`
+	PublishedDateTime *time.Time      `json:"publishedDateTime,omitempty"`
+	ArchivedDateTime  *time.Time      `json:"archivedDateTime,omitempty"`
 }
 
 type CreateTourRequest struct {

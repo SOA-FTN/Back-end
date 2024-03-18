@@ -18,12 +18,14 @@ func NewTourService(tr *repo.TourRepository) *TourService {
 func (ts *TourService) CreateTour(tour *model.Tour) error {
 
 	newTour := model.Tour{
-		Name:            tour.Name,
-		DifficultyLevel: tour.DifficultyLevel,
-		Description:     tour.Description,
-		Status:          model.Draft,
-		Price:           tour.Price,
-		UserId:          tour.UserId,
+		Name:              tour.Name,
+		DifficultyLevel:   tour.DifficultyLevel,
+		Description:       tour.Description,
+		Status:            model.Draft,
+		Price:             tour.Price,
+		UserId:            tour.UserId,
+		ArchivedDateTime:  tour.ArchivedDateTime,
+		PublishedDateTime: tour.PublishedDateTime,
 	}
 	err := ts.TourRepository.CreateTour(&newTour)
 	if err != nil {

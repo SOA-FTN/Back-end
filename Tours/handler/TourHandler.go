@@ -31,12 +31,14 @@ func (th *TourHandler) CreateTourHandler(w http.ResponseWriter, r *http.Request)
 
 	// Map fields to the Tour struct
 	tour := model.Tour{
-		Name:            req.Name,
-		Description:     req.Description,
-		DifficultyLevel: model.DifficultyLevel(service.ConvertDifficultyLevelToInt(req.DifficultyLevel)),
-		Status:          model.TourStatus(service.ConvertStatusToInt(req.Status)),
-		Price:           req.Price,
-		UserId:          req.UserID,
+		Name:              req.Name,
+		Description:       req.Description,
+		DifficultyLevel:   model.DifficultyLevel(service.ConvertDifficultyLevelToInt(req.DifficultyLevel)),
+		Status:            model.TourStatus(service.ConvertStatusToInt(req.Status)),
+		Price:             req.Price,
+		UserId:            req.UserID,
+		ArchivedDateTime:  req.ArchivedDateTime,
+		PublishedDateTime: req.PublishedDateTime,
 	}
 
 	if err := th.TourService.CreateTour(&tour); err != nil {
