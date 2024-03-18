@@ -22,6 +22,8 @@ func initDB() *gorm.DB {
 		return nil
 	}
 	database.AutoMigrate(&model.Tour{})
+	database.AutoMigrate(&model.TourPoint{})
+
 	return database
 }
 
@@ -41,19 +43,22 @@ func main() {
 
 	// Initialize repositories
 	tourRepo := repo.NewTourRepository(database)
+	tourPointRepo := repo.NewTourPointRepository(database)
 
 	// Initialize services
 	tourService := service.NewTourService(tourRepo)
+	tourPointService := service.NewTourPointService(tourPointRepo)
 
 	// Initialize handlers
 	tourHandler := handler.NewTourHandler(tourService)
+	tourPointHandler := handler.NewTourPointHandler(tourPointService)
 
 	// Set up routes
 	router := mux.NewRouter()
 	router.HandleFunc("/tours", tourHandler.CreateTourHandler).Methods("POST")
+	router.HandleFunc("/tourpoints", tourPointHandler.CreateTourPointHandler).Methods("POST")
 
 	// Start the server
 	log.Println("Server started on port 8081")
 	log.Fatal(http.ListenAndServe(":8081", router))
-
 }
