@@ -33,3 +33,29 @@ func (es *EncounterService) CreateEncounter(encounter *model.Encounter) error {
 	}
 	return nil
 }
+
+func ConvertEncounterStatusToInt(status string) int {
+	switch status {
+	case "ACTIVE":
+		return 0
+	case "DRAFT":
+		return 1
+	case "ARCHIVED":
+		return 2
+	default:
+		return -1
+	}
+}
+
+func ConvertEncounterTypeToInt(encounterType string) int {
+	switch encounterType {
+	case "SOCIAL":
+		return 0
+	case "LOCATION":
+		return 1
+	case "MISC":
+		return 2
+	default:
+		return -1
+	}
+}
