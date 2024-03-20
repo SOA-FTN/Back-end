@@ -37,3 +37,14 @@ type CreateEncounter struct {
 	Longitude        float64
 	ShouldBeApproved bool
 }
+
+type UpdateEncounter struct {
+	Name             string
+	Description      string
+	XpPoints         int
+	Status           EncounterStatus
+	Type             string
+	Latitude         float64
+	Longitude        float64
+	ShouldBeApproved bool
+}

@@ -45,6 +45,7 @@ func main() {
 	// Set up routes
 	router := mux.NewRouter()
 	router.HandleFunc("/createEncounter", encounterHandler.CreateEncounterHandler).Methods("POST")
+	router.HandleFunc("/getEncounters", encounterHandler.GetAllEncountersHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8083")

@@ -23,3 +23,19 @@ func (tr *EncounterRepository) CreateEncounter(encounter *model.Encounter) error
 	}
 	return nil
 }
+
+func (er *EncounterRepository) GetAllEncounters() ([]model.Encounter, error) {
+	var encounters []model.Encounter
+	if err := er.DatabaseConnection.Find(&encounters).Error; err != nil {
+		return nil, err
+	}
+	return encounters, nil
+}
+
+func (repo EncounterRepository) UpdateEncounter(encounter *model.Encounter) (*model.Encounter, error) {
+	dbResult := repo.DatabaseConnection.Model(&model.Encounter{}).Where("name=?", encounter.Name).Updates(encounter)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return encounter, nil
+}

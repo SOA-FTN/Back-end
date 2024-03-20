@@ -59,3 +59,19 @@ func ConvertEncounterTypeToInt(encounterType string) int {
 		return -1
 	}
 }
+
+func (es *EncounterService) GetAllEncounters() ([]model.Encounter, error) {
+	encounters, err := es.EncounterRepository.GetAllEncounters()
+	if err != nil {
+		return nil, err
+	}
+	return encounters, nil
+}
+
+func (service *EncounterService) UpdateEncounter(encounter *model.Encounter) (*model.Encounter, error) {
+	updatedEncounter, err := service.EncounterRepository.UpdateEncounter(encounter)
+	if err != nil {
+		return nil, err
+	}
+	return updatedEncounter, nil
+}

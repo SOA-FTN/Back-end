@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encounters/model"
 	"encounters/service"
+
 	"log"
 	"net/http"
 )
@@ -47,4 +48,25 @@ func (eh *EncounterHandler) CreateEncounterHandler(w http.ResponseWriter, r *htt
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(enc)
+}
+
+func (eh *EncounterHandler) GetAllEncountersHandler(w http.ResponseWriter, r *http.Request) {
+	encounters, err := eh.EncounterService.GetAllEncounters()
+	if err != nil {
+		http.Error(w, "Failed to get encounters", http.StatusInternalServerError)
+		log.Println("prva")
+		return
+	}
+
+	// Convert encounters to JSON and send response
+	response, err := json.Marshal(encounters)
+	if err != nil {
+		http.Error(w, "Failed to marshal encounters", http.StatusInternalServerError)
+		log.Println("druga")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
