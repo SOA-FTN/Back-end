@@ -18,13 +18,14 @@ func (service *UserService) GetPersonByUserId(userId *string) (*model.Person , e
 	return person,nil
 }
 //REGISTRACIJA
-func(service *UserService) Registration (registration *model.Registration) error {
+func(service *UserService) Registration (registration *model.Registration, token *string) error {
 
 	newUser := model.User{
 		UserName: registration.Username,
 		Password: registration.Password,
-		IsActive: true,
+		IsActive: false,
 		Role:model.ParseUserRole(registration.Role),
+		VerificationToken: *token,
 	}
 	newPerson := model.Person{
 		Name:    registration.Name,
@@ -54,3 +55,20 @@ func (service *UserService) UpdateProfile(person *model.Person) (*model.Person,e
 	}
 	return updatedPerson,nil
 }
+
+//GETOVANJE PROFILA
+func (service *UserService) GetAndVerifyUserByToken(token *string) (*model.User , error){
+	user,err := service.UserRepo.GetUserByToken(token)
+	if err != nil {
+		return nil , fmt.Errorf(fmt.Sprintf("menu item with token %s not found", *token))
+	}
+
+	user.IsActive = true
+	updatedUser, err := service.UserRepo.UpdateUser(user)
+	if err != nil {
+		return nil,err;
+	}
+
+	return updatedUser,nil
+}
+

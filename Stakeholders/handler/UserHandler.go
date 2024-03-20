@@ -11,6 +11,7 @@ import (
 
 type UserHandler struct {
 	UserService *service.UserService
+	AuthService *service.AuthService 
 }
 //REGISTRACIJA KORISNIKA
 func (userHandler *UserHandler) Registration(writer http.ResponseWriter, req *http.Request) {
@@ -23,9 +24,19 @@ func (userHandler *UserHandler) Registration(writer http.ResponseWriter, req *ht
 		return
 	}
 
-	err = userHandler.UserService.Registration(&registration)
+	token := userHandler.AuthService.GenerateUniqueVerificationToken()
+
+	err = userHandler.UserService.Registration(&registration, &token)
 	if err != nil {
 		println("Error while registering a new user")
+		writer.WriteHeader(http.StatusExpectationFailed)
+		return
+	}
+
+
+	err = userHandler.AuthService.SendVerificationMail(&registration, token)
+	if err != nil {
+		println("Error while sending an email")
 		writer.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
@@ -67,4 +78,17 @@ func(userHandler *UserHandler) UpdateProfile(writer http.ResponseWriter , req *h
 	}
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(updatedPerson)
+}
+
+func (userHandler *UserHandler) VerifyEmail (writer http.ResponseWriter , req *http.Request){
+	token := mux.Vars(req)["token"]
+	user ,err := userHandler.UserService.GetAndVerifyUserByToken(&token)
+	writer.Header().Set("Content-Type" , "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(user)
+
 }

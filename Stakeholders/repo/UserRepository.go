@@ -34,6 +34,14 @@ func(repo UserRepository) UpdateProfile(person *model.Person) (*model.Person,err
 	return person,nil
 }
 
+func(repo UserRepository) UpdateUser(user *model.User) (*model.User,error) {
+	dbResult :=repo.DatabaseConnection.Model(&model.User{}).Where("id=?",user.ID).Updates(user)
+	if dbResult.Error != nil {
+		return nil,dbResult.Error
+	}
+	return user,nil
+}
+
 
 func(repo *UserRepository) GetPersonByUserId(userId *string) (*model.Person,error) {
 	person := model.Person{}
@@ -42,4 +50,13 @@ func(repo *UserRepository) GetPersonByUserId(userId *string) (*model.Person,erro
 		return nil,dbResult.Error
 	}
 	return &person,nil
+}
+
+func(repo *UserRepository) GetUserByToken(token *string) (*model.User,error) {
+	user := model.User{}
+	dbResult := repo.DatabaseConnection.First(&user, "verification_token = ?", *token)
+	if dbResult.Error !=nil {
+		return nil,dbResult.Error
+	}
+	return &user,nil
 }

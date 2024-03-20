@@ -36,6 +36,7 @@ func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT","OPTIONS")
 	router.HandleFunc("/rate-app", rateHandler.RateApp).Methods("POST","OPTIONS")
 	router.HandleFunc("/app-ratings", rateHandler.GetAllRates).Methods("GET","OPTIONS")
+	router.HandleFunc("/verifyEmail/{token}", userHandler.VerifyEmail).Methods("GET","OPTIONS")
 	
 
 	router.Use(func(next http.Handler) http.Handler {

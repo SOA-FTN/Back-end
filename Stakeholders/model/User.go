@@ -19,6 +19,7 @@ type User struct {
 	Password string `json:"Password"`
 	Role UserRole `json:"Role"`
 	IsActive bool `json:"IsActive"`
+	VerificationToken string `json:"VerificationToken"`
 	Person Person `gorm:"foreignKey:UserID"`
 }
 
