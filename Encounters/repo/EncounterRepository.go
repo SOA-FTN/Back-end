@@ -16,7 +16,7 @@ func NewEncounterRepository(db *gorm.DB) *EncounterRepository {
 	}
 }
 
-func (tr *EncounterRepository) CreateTour(encounter *model.Encounter) error {
+func (tr *EncounterRepository) CreateEncounter(encounter *model.Encounter) error {
 	dbResult := tr.DatabaseConnection.Create(encounter)
 	if dbResult.Error != nil {
 		return dbResult.Error

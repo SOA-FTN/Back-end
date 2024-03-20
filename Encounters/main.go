@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encounters/handler"
 	"encounters/model"
+	"encounters/repo"
+	"encounters/service"
 	"log"
 	"net/http"
 
@@ -23,13 +26,6 @@ func initDB() *gorm.DB {
 	return database
 }
 
-func startServer() {
-	router := mux.NewRouter()
-
-	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8083", router))
-}
-
 func main() {
 	database := initDB()
 	if database == nil {
@@ -38,23 +34,17 @@ func main() {
 	}
 
 	// Initialize repositories
-	//tourRepo := repo.NewTourRepository(database)
-	//tourPointRepo := repo.NewTourPointRepository(database)
+	encounterRepo := repo.NewEncounterRepository(database)
 
 	// Initialize services
-	//tourService := service.NewTourService(tourRepo)
-	//tourPointService := service.NewTourPointService(tourPointRepo)
+	encounterService := service.NewEncounterService(encounterRepo)
 
 	// Initialize handlers
-	//tourHandler := handler.NewTourHandler(tourService)
-	//tourPointHandler := handler.NewTourPointHandler(tourPointService)
+	encounterHandler := handler.NewEncounterHandler(encounterService)
 
 	// Set up routes
 	router := mux.NewRouter()
-	//router.HandleFunc("/createTour", tourHandler.CreateTourHandler).Methods("POST")
-	//router.HandleFunc("/createTourPoint", tourPointHandler.CreateTourPointHandler).Methods("POST")
-	//router.HandleFunc("/toursByUserId", tourHandler.GetToursByUserIDHandler).Methods("GET")
-	//router.HandleFunc("/tourPoints", tourPointHandler.GetTourPointsByTourIDHandler).Methods("GET")
+	router.HandleFunc("/createEncounter", encounterHandler.CreateEncounterHandler).Methods("POST")
 
 	// Start the server
 	log.Println("Server started on port 8083")
