@@ -31,3 +31,19 @@ func (tr *TourRepository) GetToursByUserID(userID int) ([]model.Tour, error) {
 	}
 	return tours, nil
 }
+
+func (tr *TourRepository) UpdateTour(tour *model.Tour) (*model.Tour, error) {
+	dbResult := tr.DatabaseConnection.Model(&model.Tour{}).Where("id = ?", tour.ID).Updates(tour)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return tour, nil
+}
+
+func (tr *TourRepository) FindTourByID(id int) (*model.Tour, error) {
+	var tour model.Tour
+	if err := tr.DatabaseConnection.First(&tour, id).Error; err != nil {
+		return nil, err
+	}
+	return &tour, nil
+}

@@ -46,7 +46,7 @@ func main() {
 	tourPointRepo := repo.NewTourPointRepository(database)
 
 	// Initialize services
-	tourService := service.NewTourService(tourRepo)
+	tourService := service.NewTourService(tourRepo, tourPointRepo)
 	tourPointService := service.NewTourPointService(tourPointRepo)
 
 	// Initialize handlers
@@ -59,6 +59,9 @@ func main() {
 	router.HandleFunc("/createTourPoint", tourPointHandler.CreateTourPointHandler).Methods("POST")
 	router.HandleFunc("/toursByUserId", tourHandler.GetToursByUserIDHandler).Methods("GET")
 	router.HandleFunc("/tourPoints", tourPointHandler.GetTourPointsByTourIDHandler).Methods("GET")
+	router.HandleFunc("/updateTour", tourHandler.UpdateTourHandler).Methods("PUT")
+	router.HandleFunc("/publishTour/{tourID}", tourHandler.PublishTourHandler).Methods("PUT")
+	router.HandleFunc("/archiveTour/{tourID}", tourHandler.ArchiveTourHandler).Methods("PUT")
 
 	// Start the server
 	log.Println("Server started on port 8081")
