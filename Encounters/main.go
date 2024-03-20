@@ -35,12 +35,15 @@ func main() {
 
 	// Initialize repositories
 	encounterRepo := repo.NewEncounterRepository(database)
+	//encounterExecutionRepo := repo.NewEncounterExecutionRepository(database)
 
 	// Initialize services
 	encounterService := service.NewEncounterService(encounterRepo)
+	//encounterExecutionService := service.NewEncounterExecutionService(encounterExecutionRepo)
 
 	// Initialize handlers
 	encounterHandler := handler.NewEncounterHandler(encounterService)
+	//encounterExecutionHandler := handler.NewEncounterExecutionHandler(encounterExecutionService)
 
 	// Set up routes
 	router := mux.NewRouter()
