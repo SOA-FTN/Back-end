@@ -35,20 +35,21 @@ func main() {
 
 	// Initialize repositories
 	encounterRepo := repo.NewEncounterRepository(database)
-	//encounterExecutionRepo := repo.NewEncounterExecutionRepository(database)
+	encounterExecutionRepo := repo.NewEncounterExecutionRepository(database)
 
 	// Initialize services
 	encounterService := service.NewEncounterService(encounterRepo)
-	//encounterExecutionService := service.NewEncounterExecutionService(encounterExecutionRepo)
+	encounterExecutionService := service.NewEncounterExecutionService(encounterExecutionRepo)
 
 	// Initialize handlers
 	encounterHandler := handler.NewEncounterHandler(encounterService)
-	//encounterExecutionHandler := handler.NewEncounterExecutionHandler(encounterExecutionService)
+	encounterExecutionHandler := handler.NewEncounterExecutionHandler(encounterExecutionService)
 
 	// Set up routes
 	router := mux.NewRouter()
 	router.HandleFunc("/createEncounter", encounterHandler.CreateEncounterHandler).Methods("POST")
 	router.HandleFunc("/getEncounters", encounterHandler.GetAllEncountersHandler).Methods("GET")
+	router.HandleFunc("/getEncounterExecutions", encounterExecutionHandler.GetAllEncounterExecutionsHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8083")

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encounters/model"
 	"encounters/repo"
 )
 
@@ -12,4 +13,12 @@ func NewEncounterExecutionService(er *repo.EncounterExecutionRepository) *Encoun
 	return &EncounterExecutionService{
 		EncounterExecutionRepository: er,
 	}
+}
+
+func (es *EncounterExecutionService) GetAllEncounterExecutions() ([]model.EncounterExecution, error) {
+	encounters, err := es.EncounterExecutionRepository.GetAllEncounterExecutions()
+	if err != nil {
+		return nil, err
+	}
+	return encounters, nil
 }
