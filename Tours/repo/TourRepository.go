@@ -47,3 +47,12 @@ func (tr *TourRepository) FindTourByID(id int) (*model.Tour, error) {
 	}
 	return &tour, nil
 }
+
+func (tr *TourRepository) GetPublishedTours() ([]model.Tour, error) {
+	var tours []model.Tour
+	err := tr.DatabaseConnection.Where("t_status = ?", 1).Find(&tours).Error
+	if err != nil {
+		return nil, err
+	}
+	return tours, nil
+}

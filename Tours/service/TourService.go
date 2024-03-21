@@ -19,6 +19,14 @@ func NewTourService(tr *repo.TourRepository, tps *repo.TourPointRepository) *Tou
 	}
 }
 
+func (ts *TourService) GetPublishedTours() ([]model.Tour, error) {
+	tours, err := ts.TourRepository.GetPublishedTours()
+	if err != nil {
+		return nil, err
+	}
+	return tours, nil
+}
+
 func (ts *TourService) CreateTour(tour *model.Tour) error {
 
 	newTour := model.Tour{

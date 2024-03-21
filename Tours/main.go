@@ -23,6 +23,7 @@ func initDB() *gorm.DB {
 	}
 	database.AutoMigrate(&model.Tour{})
 	database.AutoMigrate(&model.TourPoint{})
+	database.AutoMigrate(&model.TourReview{})
 
 	return database
 }
@@ -44,15 +45,17 @@ func main() {
 	// Initialize repositories
 	tourRepo := repo.NewTourRepository(database)
 	tourPointRepo := repo.NewTourPointRepository(database)
+	tourReviewRepo := repo.NewTourReviewRepository(database)
 
 	// Initialize services
 	tourService := service.NewTourService(tourRepo, tourPointRepo)
 	tourPointService := service.NewTourPointService(tourPointRepo)
+	tourReviewService := service.NewTourReviewService(tourReviewRepo)
 
 	// Initialize handlers
 	tourHandler := handler.NewTourHandler(tourService)
 	tourPointHandler := handler.NewTourPointHandler(tourPointService)
-
+	tourReviewHandler := handler.NewTourReviewHandler(tourReviewService)
 	// Set up routes
 	router := mux.NewRouter()
 	router.HandleFunc("/createTour", tourHandler.CreateTourHandler).Methods("POST")
@@ -62,6 +65,9 @@ func main() {
 	router.HandleFunc("/updateTour", tourHandler.UpdateTourHandler).Methods("PUT")
 	router.HandleFunc("/publishTour/{tourID}", tourHandler.PublishTourHandler).Methods("PUT")
 	router.HandleFunc("/archiveTour/{tourID}", tourHandler.ArchiveTourHandler).Methods("PUT")
+	router.HandleFunc("/createTourReview", tourReviewHandler.CreateTourReviewHandler).Methods("POST")
+	router.HandleFunc("/getPublishedTours", tourHandler.GetPublishedToursHandler).Methods("GET")
+	router.HandleFunc("/tourReview/getTourReviewsByTourID", tourHandler.GetPublishedToursHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8081")

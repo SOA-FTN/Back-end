@@ -50,6 +50,19 @@ func (th *TourHandler) CreateTourHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(tour)
 }
 
+func (th *TourHandler) GetPublishedToursHandler(w http.ResponseWriter, r *http.Request) {
+	// Call the service method to get approved tours
+	tours, err := th.TourService.GetPublishedTours()
+	if err != nil {
+		http.Error(w, "Failed to retrieve approved tours: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return the retrieved tours as JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tours)
+}
+
 func (th *TourHandler) GetToursByUserIDHandler(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.URL.Query().Get("userId")
 	userID, err := strconv.Atoi(userIDStr)
@@ -95,15 +108,11 @@ func (th *TourHandler) PublishTourHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	log.Println("tourID from URL path:", tourIDStr)
-
 	tourID, err := strconv.ParseInt(tourIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid tourID", http.StatusBadRequest)
 		return
 	}
-
-	log.Println("Parsed tourID:", tourID)
 
 	// Call the service method to publish tour
 	err = th.TourService.PublishTour(tourID)
