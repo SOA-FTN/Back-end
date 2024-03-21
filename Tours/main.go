@@ -67,7 +67,7 @@ func main() {
 	router.HandleFunc("/archiveTour/{tourID}", tourHandler.ArchiveTourHandler).Methods("PUT")
 	router.HandleFunc("/createTourReview", tourReviewHandler.CreateTourReviewHandler).Methods("POST")
 	router.HandleFunc("/getPublishedTours", tourHandler.GetPublishedToursHandler).Methods("GET")
-	router.HandleFunc("/tourReview/getTourReviewsByTourID", tourHandler.GetPublishedToursHandler).Methods("GET")
+	router.HandleFunc("/tourReview/getTourReviewsByTourID", tourReviewHandler.GetTourReviewsByTourIDHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8081")
