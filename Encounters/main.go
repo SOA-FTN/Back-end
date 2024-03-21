@@ -52,6 +52,9 @@ func main() {
 	router.HandleFunc("/getEncounters", encounterHandler.GetAllEncountersHandler).Methods("GET")
 	router.HandleFunc("/getEncounterExecutions", encounterExecutionHandler.GetAllEncounterExecutionsHandler).Methods("GET")
 	router.HandleFunc("/createEncounterExecution", encounterExecutionHandler.CreateEncounterExecutionHandler).Methods("POST")
+	router.HandleFunc("/activeEncounterByUserId/{userId}", encounterExecutionHandler.GetEncounterExecutionByUserIDAndNotCompletedHandler).Methods("GET")
+	router.HandleFunc("/getEncounter/{encounterId}", encounterHandler.GetEncounterByIDHandler).Methods("GET")
+	router.HandleFunc("/completeExecution/{userId}", encounterExecutionHandler.UpdateEncounterExecutionHandler).Methods("GET")
 
 	// Start the server
 	log.Println("Server started on port 8083")

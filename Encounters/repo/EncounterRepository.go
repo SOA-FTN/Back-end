@@ -39,3 +39,11 @@ func (repo EncounterRepository) UpdateEncounter(encounter *model.Encounter) (*mo
 	}
 	return encounter, nil
 }
+
+func (er *EncounterRepository) GetEncounterByID(id int) (*model.Encounter, error) {
+	var encounter model.Encounter
+	if err := er.DatabaseConnection.First(&encounter, id).Error; err != nil {
+		return nil, err
+	}
+	return &encounter, nil
+}

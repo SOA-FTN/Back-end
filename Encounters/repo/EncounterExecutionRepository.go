@@ -39,3 +39,10 @@ func (eer *EncounterExecutionRepository) GetByUserIDAndNotCompleted(userID int) 
 	}
 	return &execution, nil
 }
+
+func (eer *EncounterExecutionRepository) Update(execution *model.EncounterExecution) error {
+	if err := eer.DatabaseConnection.Save(execution).Error; err != nil {
+		return err
+	}
+	return nil
+}

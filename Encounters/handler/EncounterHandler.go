@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"encounters/model"
 	"encounters/service"
+	"strconv"
 
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type EncounterHandler struct {
@@ -69,4 +72,32 @@ func (eh *EncounterHandler) GetAllEncountersHandler(w http.ResponseWriter, r *ht
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(response)
+}
+
+func (eh *EncounterHandler) GetEncounterByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract encounter ID from the URL path
+	vars := mux.Vars(r)
+	encounterIDStr, ok := vars["encounterId"]
+	if !ok {
+		http.Error(w, "Encounter ID not provided", http.StatusBadRequest)
+		return
+	}
+
+	// Convert encounterIDStr to int
+	encounterID, err := strconv.Atoi(encounterIDStr)
+	if err != nil {
+		http.Error(w, "Invalid encounter ID", http.StatusBadRequest)
+		return
+	}
+
+	// Call service function to get encounter by ID
+	encounter, err := eh.EncounterService.GetEncounterByID(encounterID)
+	if err != nil {
+		http.Error(w, "Failed to get encounter by ID", http.StatusInternalServerError)
+		return
+	}
+
+	// Encode encounter into JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(encounter)
 }

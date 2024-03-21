@@ -75,3 +75,7 @@ func (service *EncounterService) UpdateEncounter(encounter *model.Encounter) (*m
 	}
 	return updatedEncounter, nil
 }
+
+func (es *EncounterService) GetEncounterByID(id int) (*model.Encounter, error) {
+	return es.EncounterRepository.GetEncounterByID(id)
+}

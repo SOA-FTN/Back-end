@@ -9,6 +9,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type EncounterExecutionHandler struct {
@@ -72,4 +75,59 @@ func (eh *EncounterExecutionHandler) GetAllEncounterExecutionsHandler(w http.Res
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(response)
+}
+
+func (eh *EncounterExecutionHandler) GetEncounterExecutionByUserIDAndNotCompletedHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from the URL path
+	vars := mux.Vars(r)
+	userIDStr, ok := vars["userId"]
+	if !ok {
+		http.Error(w, "User ID not provided", http.StatusBadRequest)
+		return
+	}
+
+	// Convert userIDStr to int
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid userID", http.StatusBadRequest)
+		return
+	}
+
+	// Call service function to get encounters by userID
+	encounter, err := eh.EncounterExecutionService.GetEncounterExecutionByUserIDAndNotCompleted(userID)
+	if err != nil {
+		http.Error(w, "Failed to get encounter by UserID", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("ez")
+	// Encode encounters into JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(encounter)
+}
+
+func (eeh *EncounterExecutionHandler) UpdateEncounterExecutionHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from the URL path
+	vars := mux.Vars(r)
+	userIDStr, ok := vars["userId"]
+	if !ok {
+		http.Error(w, "User ID not provided", http.StatusBadRequest)
+		return
+	}
+
+	// Convert userIDStr to int
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid userID", http.StatusBadRequest)
+		return
+	}
+
+	// Call service function to update encounter execution
+	if err := eeh.EncounterExecutionService.UpdateEncounterExecution(userID); err != nil {
+		http.Error(w, "Failed to update encounter execution", http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
 }
