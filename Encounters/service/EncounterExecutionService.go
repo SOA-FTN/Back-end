@@ -15,6 +15,21 @@ func NewEncounterExecutionService(er *repo.EncounterExecutionRepository) *Encoun
 	}
 }
 
+func (es *EncounterExecutionService) CreateEncounterExecution(encounterExecution *model.EncounterExecution) error {
+
+	newEncounterExecution := model.EncounterExecution{
+		UserID:         encounterExecution.UserID,
+		EncounterID:    encounterExecution.EncounterID,
+		CompletionTime: encounterExecution.CompletionTime,
+		IsCompleted:    encounterExecution.IsCompleted,
+	}
+	err := es.EncounterExecutionRepository.CreateEncounterExecution(&newEncounterExecution)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (es *EncounterExecutionService) GetAllEncounterExecutions() ([]model.EncounterExecution, error) {
 	encounters, err := es.EncounterExecutionRepository.GetAllEncounterExecutions()
 	if err != nil {

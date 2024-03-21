@@ -22,6 +22,7 @@ func initDB() *gorm.DB {
 		return nil
 	}
 	database.AutoMigrate(&model.Encounter{})
+	database.AutoMigrate(&model.EncounterExecution{})
 
 	return database
 }
@@ -50,6 +51,7 @@ func main() {
 	router.HandleFunc("/createEncounter", encounterHandler.CreateEncounterHandler).Methods("POST")
 	router.HandleFunc("/getEncounters", encounterHandler.GetAllEncountersHandler).Methods("GET")
 	router.HandleFunc("/getEncounterExecutions", encounterExecutionHandler.GetAllEncounterExecutionsHandler).Methods("GET")
+	router.HandleFunc("/createEncounterExecution", encounterExecutionHandler.CreateEncounterExecutionHandler).Methods("POST")
 
 	// Start the server
 	log.Println("Server started on port 8083")

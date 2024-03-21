@@ -1,5 +1,7 @@
 package model
 
+import "gorm.io/gorm"
+
 type EncounterStatus int
 
 const (
@@ -17,6 +19,7 @@ const (
 )
 
 type Encounter struct {
+	gorm.Model
 	Name             string
 	Description      string
 	XpPoints         int

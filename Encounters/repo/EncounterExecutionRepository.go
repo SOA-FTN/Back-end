@@ -31,3 +31,11 @@ func (er *EncounterExecutionRepository) GetAllEncounterExecutions() ([]model.Enc
 	}
 	return encounterExecutions, nil
 }
+
+func (eer *EncounterExecutionRepository) GetByUserIDAndNotCompleted(userID int) (*model.EncounterExecution, error) {
+	var execution model.EncounterExecution
+	if err := eer.DatabaseConnection.Where("user_id = ? AND is_completed = ?", userID, false).First(&execution).Error; err != nil {
+		return nil, err
+	}
+	return &execution, nil
+}
