@@ -31,8 +31,6 @@ func (eh *EncounterHandler) CreateEncounterHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	// Map fields to the Tour struct
-
 	newEncounter := model.Encounter{
 		Name:             enc.Name,
 		Description:      enc.Description,
@@ -57,7 +55,6 @@ func (eh *EncounterHandler) GetAllEncountersHandler(w http.ResponseWriter, r *ht
 	encounters, err := eh.EncounterService.GetAllEncounters()
 	if err != nil {
 		http.Error(w, "Failed to get encounters", http.StatusInternalServerError)
-		log.Println("prva")
 		return
 	}
 
@@ -65,7 +62,6 @@ func (eh *EncounterHandler) GetAllEncountersHandler(w http.ResponseWriter, r *ht
 	response, err := json.Marshal(encounters)
 	if err != nil {
 		http.Error(w, "Failed to marshal encounters", http.StatusInternalServerError)
-		log.Println("druga")
 		return
 	}
 
@@ -75,7 +71,7 @@ func (eh *EncounterHandler) GetAllEncountersHandler(w http.ResponseWriter, r *ht
 }
 
 func (eh *EncounterHandler) GetEncounterByIDHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract encounter ID from the URL path
+
 	vars := mux.Vars(r)
 	encounterIDStr, ok := vars["encounterId"]
 	if !ok {
@@ -83,21 +79,18 @@ func (eh *EncounterHandler) GetEncounterByIDHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	// Convert encounterIDStr to int
 	encounterID, err := strconv.Atoi(encounterIDStr)
 	if err != nil {
 		http.Error(w, "Invalid encounter ID", http.StatusBadRequest)
 		return
 	}
 
-	// Call service function to get encounter by ID
 	encounter, err := eh.EncounterService.GetEncounterByID(encounterID)
 	if err != nil {
 		http.Error(w, "Failed to get encounter by ID", http.StatusInternalServerError)
 		return
 	}
 
-	// Encode encounter into JSON response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(encounter)
 }
