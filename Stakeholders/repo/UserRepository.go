@@ -36,8 +36,9 @@ func(repo UserRepository) UpdateProfile(person *model.Person) (*model.Person,err
 }
 
 func(repo UserRepository) UpdateUser(user *model.User) (*model.User,error) {
-	dbResult :=repo.DatabaseConnection.Model(&model.User{}).Where("id=?",user.ID).Updates(user)
+	dbResult :=repo.DatabaseConnection.Debug().Model(&model.User{}).Where("id=?",user.ID).Updates(user)
 	if dbResult.Error != nil {
+		println("Errorcina")
 		return nil,dbResult.Error
 	}
 	return user,nil

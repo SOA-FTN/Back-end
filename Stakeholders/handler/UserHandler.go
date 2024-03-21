@@ -26,8 +26,9 @@ func (userHandler *UserHandler) Registration(writer http.ResponseWriter, req *ht
 	}
 
 	token := userHandler.AuthService.GenerateUniqueVerificationToken()
+	item := false
 
-	err = userHandler.UserService.Registration(&registration, &token)
+	err = userHandler.UserService.Registration(&registration, &token, &item)
 	if err != nil {
 		println("Error while registering a new user")
 		writer.WriteHeader(http.StatusExpectationFailed)
