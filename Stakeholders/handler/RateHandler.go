@@ -14,7 +14,6 @@ type RateHandler struct {
 //Ocjenjivanje 
 func (rateHandler *RateHandler) RateApp(writer http.ResponseWriter, req *http.Request) {
 	var rate model.Rate
-	println("Ovo je upis ocjena")
 	err := json.NewDecoder(req.Body).Decode(&rate)
 	if err != nil {
 		println("Error while parsing json")

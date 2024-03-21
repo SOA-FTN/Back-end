@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"stakeholders/model"
 	"stakeholders/service"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -91,4 +92,38 @@ func (userHandler *UserHandler) VerifyEmail (writer http.ResponseWriter , req *h
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(user)
 
+}
+
+func (userHandler *UserHandler) GetAllProfiles (writer http.ResponseWriter , req *http.Request){
+	people ,err := userHandler.UserService.GetAllProfiles()
+	writer.Header().Set("Content-Type" , "application/json")
+	if err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(people)
+
+}
+
+func(userHandler *UserHandler) BlockUser(writer http.ResponseWriter , req *http.Request){
+	idStr := mux.Vars(req)["id"]
+	id64, err := strconv.ParseUint(idStr, 10, 32) // Assuming base 10 and 32-bit unsigned integer
+	if err != nil {
+    // Handle error if the ID cannot be converted to uint
+    // For example, return an HTTP response indicating bad request
+    	writer.WriteHeader(http.StatusNotFound)
+   		return
+	}
+
+	id := uint(id64)
+	updatedPerson,err := userHandler.UserService.BlockOrUnblock(&id)
+	//println(updatedPerson.IsActive)
+	writer.Header().Set("Content-Type" , "application/json")
+	if  err != nil {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(updatedPerson)
 }

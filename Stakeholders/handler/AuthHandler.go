@@ -22,7 +22,7 @@ func(AuthHandler *AuthHandler) Login(writer http.ResponseWriter, req *http.Reque
 		return 
 	}
 	user,err := AuthHandler.AuthService.Authentication(&credentials)
-	if err != nil || user.Password != credentials.Password || user.UserName != credentials.Username || !user.IsActive {
+	if err != nil || user.Password != credentials.Password || user.UserName != credentials.Username || !*user.IsActive {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return 
 	}

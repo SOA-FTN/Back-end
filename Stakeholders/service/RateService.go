@@ -15,12 +15,20 @@ type RateService struct {
 //Post
 func(service *RateService) RateApp (rate *model.Rate) error {
 
+
+	//canRate,  err := service.RateRepo.CheckIfUserCanRate(int(rate.UserId))
+    //if !*canRate {
+    //    return  fmt.Errorf("Korisnik je vec ocijenio aplikaciju" + err.Error())
+    //}
+
 	newRate := model.Rate{
 		UserId: rate.UserId,
 		Rating: rate.Rating,
 		Description: rate.Description,
 	}
 	
+	
+
 	err := service.RateRepo.RateApp(&newRate)
 	if err != nil{
 		return err

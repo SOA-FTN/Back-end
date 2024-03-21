@@ -37,6 +37,8 @@ func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 	router.HandleFunc("/rate-app", rateHandler.RateApp).Methods("POST","OPTIONS")
 	router.HandleFunc("/app-ratings", rateHandler.GetAllRates).Methods("GET","OPTIONS")
 	router.HandleFunc("/verifyEmail/{token}", userHandler.VerifyEmail).Methods("GET","OPTIONS")
+	router.HandleFunc("/all-profiles", userHandler.GetAllProfiles).Methods("GET","OPTIONS")
+	router.HandleFunc("/block-profile/{id}", userHandler.BlockUser).Methods("PUT","OPTIONS")
 	
 
 	router.Use(func(next http.Handler) http.Handler {
