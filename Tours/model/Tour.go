@@ -27,7 +27,7 @@ type Tour struct {
 	Name              string          `json:"name"`
 	DifficultyLevel   DifficultyLevel `json:"difficultyLevel"`
 	Description       string          `json:"description"`
-	Status            TourStatus      `json:"status"`
+	TStatus           TourStatus      `json:"tStatus"`
 	Price             int             `json:"price"`
 	UserId            int             `json:"userId"`
 	PublishedDateTime *time.Time      `json:"publishedDateTime,omitempty"`

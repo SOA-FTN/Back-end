@@ -1,17 +1,21 @@
 package service
 
 import (
+	"errors"
+	"log"
 	"tours/model"
 	"tours/repo"
 )
 
 type TourService struct {
-	TourRepository *repo.TourRepository
+	TourRepository      *repo.TourRepository
+	TourPointRepository *repo.TourPointRepository
 }
 
-func NewTourService(tr *repo.TourRepository) *TourService {
+func NewTourService(tr *repo.TourRepository, tps *repo.TourPointRepository) *TourService {
 	return &TourService{
-		TourRepository: tr,
+		TourRepository:      tr,
+		TourPointRepository: tps,
 	}
 }
 
@@ -21,7 +25,7 @@ func (ts *TourService) CreateTour(tour *model.Tour) error {
 		Name:              tour.Name,
 		DifficultyLevel:   tour.DifficultyLevel,
 		Description:       tour.Description,
-		Status:            model.Draft,
+		TStatus:           model.Draft,
 		Price:             tour.Price,
 		UserId:            tour.UserId,
 		ArchivedDateTime:  tour.ArchivedDateTime,
@@ -35,7 +39,6 @@ func (ts *TourService) CreateTour(tour *model.Tour) error {
 }
 
 func (ts *TourService) GetToursByUserID(userID int) ([]model.Tour, error) {
-	// Call repository function to get tours by userID
 	tours, err := ts.TourRepository.GetToursByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -57,8 +60,19 @@ func ConvertDifficultyLevelToInt(difficultyLevel string) int {
 	}
 }
 
-// ConvertStatusToInt converts the string status to an integer.
-// It returns -1 if the status is not recognized.
+func ConvertIntToDifficultyLevel(level int) string {
+	switch level {
+	case 0:
+		return "Easy"
+	case 1:
+		return "Moderate"
+	case 2:
+		return "Difficult"
+	default:
+		return "Unknown"
+	}
+}
+
 func ConvertStatusToInt(status string) int {
 	switch status {
 	case "Draft":
@@ -70,4 +84,64 @@ func ConvertStatusToInt(status string) int {
 	default:
 		return -1
 	}
+}
+
+func (ts *TourService) UpdateTour(tour *model.Tour) (*model.Tour, error) {
+	updatedTour, err := ts.TourRepository.UpdateTour(tour)
+	if err != nil {
+		return nil, err
+	}
+	return updatedTour, nil
+}
+
+func (ts *TourService) PublishTour(tourID int64) error {
+	tourPoints, err := ts.TourPointRepository.GetTourPointsByTourID(tourID)
+
+	if err != nil {
+		log.Println("Error getting tour points:", err)
+		return err
+	}
+
+	if len(tourPoints) >= 2 {
+		tour, err := ts.TourRepository.FindTourByID(int(tourID))
+		if err != nil {
+			log.Println("Error finding tour by ID:", err)
+			return err
+		}
+
+		if tour.Name == "" || tour.Description == "" {
+			err := errors.New("tour name or description is empty")
+			log.Println("Error: tour name or description is empty")
+			return err
+		}
+
+		tour.TStatus = 1
+
+		tour, err = ts.TourRepository.UpdateTour(tour)
+		if err != nil {
+			log.Println("Error updating tour:", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (ts *TourService) ArchiveTour(tourID int64) error {
+
+	tour, err := ts.TourRepository.FindTourByID(int(tourID))
+	if err != nil {
+		log.Println("Error finding tour by ID:", err)
+		return err
+	}
+
+	tour.TStatus = 2
+
+	tour, err = ts.TourRepository.UpdateTour(tour)
+	if err != nil {
+		log.Println("Error updating tour:", err)
+		return err
+	}
+
+	return nil
 }
