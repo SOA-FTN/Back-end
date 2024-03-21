@@ -23,16 +23,22 @@ func initDB() *gorm.DB {
 	}
 	database.AutoMigrate(&model.User{})
 	database.AutoMigrate(&model.Person{})
+	database.AutoMigrate(&model.Rate{})
 	return database
 }
 
-func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) {
+func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHandler, rateHandler *handler.RateHandler) {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/register", userHandler.Registration).Methods("POST", "OPTIONS")
 	router.HandleFunc("/login", authHandler.Login).Methods("POST", "OPTIONS")
 	router.HandleFunc("/userProfile/{id}", userHandler.GetProfile).Methods("GET", "OPTIONS")
 	router.HandleFunc("/updateProfile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
+	router.HandleFunc("/rate-app", rateHandler.RateApp).Methods("POST", "OPTIONS")
+	router.HandleFunc("/app-ratings", rateHandler.GetAllRates).Methods("GET", "OPTIONS")
+	router.HandleFunc("/verifyEmail/{token}", userHandler.VerifyEmail).Methods("GET", "OPTIONS")
+	router.HandleFunc("/all-profiles", userHandler.GetAllProfiles).Methods("GET", "OPTIONS")
+	router.HandleFunc("/block-profile/{id}", userHandler.BlockUser).Methods("PUT", "OPTIONS")
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +70,9 @@ func main() {
 	authRepo := &repo.AuthRepository{DatabaseConnection: database}
 	authService := &service.AuthService{AuthRepo: authRepo}
 	authHandler := &handler.AuthHandler{AuthService: authService}
+	rateRepo := &repo.RateRepository{DatabaseConnection: database}
+	rateService := &service.RateService{RateRepo: rateRepo}
+	rateHandler := &handler.RateHandler{RateService: rateService}
 
-	startServer(userHandler, authHandler)
+	startServer(userHandler, authHandler, rateHandler)
 }
