@@ -29,13 +29,14 @@ func (service *UserService) GetUserByUserId(userId *uint) (*model.User , error){
 }
 
 //REGISTRACIJA
-func(service *UserService) Registration (registration *model.Registration, token *string) error {
+func(service *UserService) Registration (registration *model.Registration, token *string, item *bool ) error {
 
 	newUser := model.User{
 		UserName: registration.Username,
 		Password: registration.Password,
 		Role:model.ParseUserRole(registration.Role),
 		VerificationToken: *token,
+		IsActive: item,
 	}
 	newPerson := model.Person{
 		Name:    registration.Name,
@@ -80,8 +81,9 @@ func (service *UserService) GetAndVerifyUserByToken(token *string) (*model.User 
 	if err != nil {
 		return nil , fmt.Errorf(fmt.Sprintf("menu item with token %s not found", *token))
 	}
-
+	println("Ovo je prije pristupa memoriji")
 	*user.IsActive = true
+	println("Ovo je poslije pristupa memoriji")
 	updatedUser, err := service.UpdateUser(user)
 	if err != nil {
 		return nil,err;
