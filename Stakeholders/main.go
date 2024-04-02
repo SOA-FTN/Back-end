@@ -53,7 +53,7 @@ func startServer(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 		})
 	})
 
-	println("Server starting")
+	println("Server starting on port 8082")
 	log.Fatal(http.ListenAndServe(":8082", router))
 }
 

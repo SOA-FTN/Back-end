@@ -81,9 +81,7 @@ func (service *UserService) GetAndVerifyUserByToken(token *string) (*model.User 
 	if err != nil {
 		return nil , fmt.Errorf(fmt.Sprintf("menu item with token %s not found", *token))
 	}
-	println("Ovo je prije pristupa memoriji")
 	*user.IsActive = true
-	println("Ovo je poslije pristupa memoriji")
 	updatedUser, err := service.UpdateUser(user)
 	if err != nil {
 		return nil,err;
