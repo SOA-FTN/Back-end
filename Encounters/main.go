@@ -7,6 +7,7 @@ import (
 	"encounters/service"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
@@ -14,16 +15,14 @@ import (
 )
 
 func initDB() *gorm.DB {
-	connection_url := "user=postgres password=super dbname=SOA-encounters port=5432 sslmode=disable"
-	database, err := gorm.Open(postgres.Open(connection_url), &gorm.Config{})
+	//connection_url := "user=postgres password=super dbname=SOA-encounters port=5432 sslmode=disable"
+	database, err := gorm.Open(postgres.Open(os.Getenv("DATABASE_URL")), &gorm.Config{})
 
 	if err != nil {
 		print(err)
 		return nil
 	}
-	database.AutoMigrate(&model.Encounter{})
-	database.AutoMigrate(&model.EncounterExecution{})
-
+	database.AutoMigrate(&model.Encounter{}, &model.EncounterExecution{})
 	return database
 }
 
