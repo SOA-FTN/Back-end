@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"stakeholders/handler"
 	"stakeholders/model"
 	"stakeholders/repo"
@@ -14,16 +15,14 @@ import (
 )
 
 func initDB() *gorm.DB {
-	connection_url := "user=postgres password=super dbname=SOA port=5432 sslmode=disable"
-	database, err := gorm.Open(postgres.Open(connection_url), &gorm.Config{})
+	database, err := gorm.Open(postgres.Open(os.Getenv("DATABASE_URL")), &gorm.Config{})
 
 	if err != nil {
 		print(err)
 		return nil
 	}
-	database.AutoMigrate(&model.User{})
-	database.AutoMigrate(&model.Person{})
-	database.AutoMigrate(&model.Rate{})
+
+	database.AutoMigrate(&model.User{}, &model.Person{}, &model.Rate{})
 	return database
 }
 
