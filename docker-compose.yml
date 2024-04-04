@@ -1,0 +1,97 @@
+version: '3.9'
+
+services:
+
+  tours-server:
+    container_name: tours-server
+    image: golang:latest
+    build: 
+      context: ./
+      dockerfile: Tours/Dockerfile-tours
+      args:
+                - NODE_ENV=local
+    environment:
+      DATABASE_URL: "host=go_db_tours user=postgres password=postgres dbname=SOA-tours sslmode=disable"
+    ports:
+      - 8081:8081
+    depends_on:
+      - go_db_tours
+
+  stakeholders-server:
+    container_name: stakeholders-server
+    image: golang:latest
+    build: 
+      context: ./
+      dockerfile: Stakeholders/Dockerfile-stakeholders
+      args:
+                - NODE_ENV=local
+    environment:
+      DATABASE_URL: "host=go_db user=postgres password=postgres dbname=SOA sslmode=disable"
+    ports:
+      - 8082:8082
+    depends_on:
+      - go_db
+
+  encounters-server:
+    container_name: encounters-server
+    image: golang:latest
+    build: 
+      context: ./
+      dockerfile: Encounters/Dockerfile-encounters
+      args:
+                - NODE_ENV=local
+    environment:
+      DATABASE_URL: "host=go_db_encounters user=postgres password=postgres dbname=SOA-encounters sslmode=disable"
+    ports:
+      - 8083:8083
+    depends_on:
+      - go_db_encounters
+
+  go_db_encounters:
+    container_name: go_db_encounters
+    restart: always
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: SOA-encounters
+    ports:
+      - 5433:5433
+    volumes:
+      - encounters-data:/var/lib/postgresql/data
+
+  go_db:
+    container_name: go_db
+    restart: always
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: SOA
+    ports:
+      - 5432:5432
+    volumes:
+      - stakeholders-data:/var/lib/postgresql/data
+    
+  go_db_tours:
+    container_name: go_db_tours
+    restart: always
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: SOA-tours
+    ports:
+      - 5431:5431
+    volumes:
+      - tours-data:/var/lib/postgresql/data
+
+volumes:
+  tours-data: {}
+  encounters-data: {}
+  stakeholders-data: {}
+
+networks:
+  servers:
+    name: servers
+    driver: bridge
