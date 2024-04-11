@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+
+  tours:
+    build: Tours/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
+    image: tours # naziv slike koju build-uje
+    restart: always
+    environment:
+      DATABASE_URL: "host=toursdb user=postgres password=super dbname=SOA-tours sslmode=disable"
+    networks:
+      - database
+    ports:
+      - 8081:8081
+    depends_on:
+      - toursdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
+
+  toursdb:
+    image: postgres
+    container_name: tours-database
+    networks:
+      - database
+    ports:
+      - 5433:5432 # na pgAdmin-u se moze povezati na bazu na port 5433
+    environment:
+      - POSTGRES_DB=SOA-tours
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=super
+    volumes:
+      - tours-data:/var/lib/postgresql/data
+  
+  encounters:
+    build: Encounters/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
+    image: encounters # naziv slike koju build-uje
+    restart: always
+    environment:
+      DATABASE_URL: "host=encountersdb user=postgres password=super dbname=SOA-encounters sslmode=disable"
+    networks:
+      - database
+    ports:
+      - 8083:8083
+    depends_on:
+      - encountersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza 
+  
+  encountersdb:
+    image: postgres
+    container_name: encounters-database
+    networks:
+      - database
+    ports:
+      - 5434:5432 # na pgAdmin-u se moze povezati na bazu na port 5433
+    environment:
+      - POSTGRES_DB=SOA-encounters
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=super
+    volumes:
+      - encounters-data:/var/lib/postgresql/data
+
+  stakeholders:
+    build: Stakeholders/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
+    image: stakeholders # naziv slike koju build-uje
+    restart: always
+    environment:
+      DATABASE_URL: "host=stakeholdersdb user=postgres password=super dbname=SOA sslmode=disable"
+    networks:
+      - database
+    ports:
+      - 8082:8082
+    depends_on:
+      - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza 
+  
+  stakeholdersdb:
+    image: postgres
+    container_name: stakeholders-database
+    networks:
+      - database
+    ports:
+      - 5435:5432 # na pgAdmin-u se moze povezati na bazu na port 5433
+    environment:
+      - POSTGRES_DB=SOA
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=super
+    volumes:
+      - stakeholders-data:/var/lib/postgresql/data
+
+      
+
+volumes:
+  tours-data:
+    driver: local
+    name: tours-data
+  encounters-data:
+    driver: local
+    name: encounters-data
+  stakeholders-data:
+    driver: local
+    name: stakeholders-data
+  
+
+networks:
+  database:
+    name: database
+    driver: bridge
