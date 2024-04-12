@@ -10,7 +10,7 @@ services:
     networks:
       - database
     ports:
-      - 8081:8081
+      - 8085:8085
     depends_on:
       - toursdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
 
@@ -31,29 +31,61 @@ services:
   encounters:
     build: Encounters/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
     image: encounters # naziv slike koju build-uje
-    restart: always
+    restart: unless-stopped
+    container_name: "encounter-server"
+    hostname: "encounter-server"
     environment:
-      DATABASE_URL: "host=encountersdb user=postgres password=super dbname=SOA-encounters sslmode=disable"
+      - PORT=8083
+      - MONGO_DB_URI=mongodb://root:pass@mongo:27017
     networks:
       - database
     ports:
       - 8083:8083
     depends_on:
-      - encountersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
+      mongo:
+        condition: service_healthy # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
 
-  encountersdb:
-    image: postgres
-    container_name: encounters-database
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: unless-stopped
     networks:
       - database
     ports:
-      - 5434:5432 # na pgAdmin-u se moze povezati na bazu na port 5433
+      - "27017:27017" # na pgAdmin-u se moze povezati na bazu na port 5433
     environment:
-      - POSTGRES_DB=SOA-encounters
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=super
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_DATABASE: mongoDemo
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok'
+      interval: 10s
+      timeout: 10s
+      retries: 10
     volumes:
-      - encounters-data:/var/lib/postgresql/data
+      - mongo_store:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: unless-stopped
+    environment:
+      - ME_CONFIG_SITE_PORT=8084
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017/
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8081"
+    networks:
+      - database
+    volumes:
+      - mongo_express_data:/data/db
 
   stakeholders:
     build: Stakeholders/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao | PUTANJA DO DOCKEFILA-a
@@ -86,12 +118,11 @@ volumes:
   tours-data:
     driver: local
     name: tours-data
-  encounters-data:
-    driver: local
-    name: encounters-data
   stakeholders-data:
     driver: local
     name: stakeholders-data
+  mongo_store:
+  mongo_express_data:
 
 networks:
   database:
