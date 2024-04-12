@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   tours:
     build: Tours/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
     image: tours # naziv slike koju build-uje
@@ -28,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=super
     volumes:
       - tours-data:/var/lib/postgresql/data
-  
+
   encounters:
     build: Encounters/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
     image: encounters # naziv slike koju build-uje
@@ -40,8 +39,8 @@ services:
     ports:
       - 8083:8083
     depends_on:
-      - encountersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza 
-  
+      - encountersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
+
   encountersdb:
     image: postgres
     container_name: encounters-database
@@ -57,7 +56,7 @@ services:
       - encounters-data:/var/lib/postgresql/data
 
   stakeholders:
-    build: Stakeholders/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao
+    build: Stakeholders/ # sam ce build-ovati prvi put, svaki drugi put ce koristiti postojecu sliku koju je build-ovao | PUTANJA DO DOCKEFILA-a
     image: stakeholders # naziv slike koju build-uje
     restart: always
     environment:
@@ -67,8 +66,8 @@ services:
     ports:
       - 8082:8082
     depends_on:
-      - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza 
-  
+      - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
+
   stakeholdersdb:
     image: postgres
     container_name: stakeholders-database
@@ -83,8 +82,6 @@ services:
     volumes:
       - stakeholders-data:/var/lib/postgresql/data
 
-      
-
 volumes:
   tours-data:
     driver: local
@@ -95,7 +92,6 @@ volumes:
   stakeholders-data:
     driver: local
     name: stakeholders-data
-  
 
 networks:
   database:
