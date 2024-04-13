@@ -93,7 +93,7 @@ services:
     networks:
       - database
     ports:
-      - 8084:8084
+      - 8085:8085
     depends_on:
       - neo4j
 
