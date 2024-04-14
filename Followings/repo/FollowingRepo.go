@@ -153,3 +153,36 @@ func (mr *FollowingRepo) GetFollowRecommendations(username string) ([]string, er
 
 	return recommendations, nil
 }
+
+func (mr *FollowingRepo) GetFollowedUsers(username string) (model.Followed, error) {
+	ctx := context.Background()
+	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	result, err := session.ExecuteRead(ctx,
+		func(transaction neo4j.ManagedTransaction) (any, error) {
+			result, err := transaction.Run(ctx,
+				`MATCH (follower:Person {username: $username})-[:IS_FOLLOWING]->(followed:Person)
+            RETURN followed.username as username`,
+				map[string]interface{}{"username": username})
+			if err != nil {
+				return nil, err
+			}
+
+			var followed model.Followed
+			for result.Next(ctx) {
+				record := result.Record()
+				followedUsername, _ := record.Get("username")
+				followed = append(followed, &model.User{UserName: followedUsername.(string)})
+			}
+
+			return followed, nil
+		})
+
+	if err != nil {
+		mr.logger.Println("Error querying followed users:", err)
+		return nil, err
+	}
+
+	return result.(model.Followed), nil
+}

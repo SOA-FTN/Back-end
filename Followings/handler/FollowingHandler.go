@@ -89,6 +89,33 @@ func (m *FollowingHandler) GetFollowRecommendations(rw http.ResponseWriter, r *h
 	rw.WriteHeader(http.StatusOK)
 }
 
+func (m *FollowingHandler) GetFollowedUsers(rw http.ResponseWriter, h *http.Request) {
+	m.logger.Println("Entered GetFollowedUsers method")
+
+	// Extract the username from the request parameters
+	vars := mux.Vars(h)
+	username := vars["username"]
+
+	// Call the repository method to retrieve followed users
+	followedUsers, err := m.repo.GetFollowedUsers(username)
+	if err != nil {
+		m.logger.Println("Database exception:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the list of followed users to JSON
+	err = json.NewEncoder(rw).Encode(followedUsers)
+	if err != nil {
+		m.logger.Println("Error encoding JSON:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success status code
+	rw.WriteHeader(http.StatusOK)
+}
+
 func (m *FollowingHandler) MiddlewarePersonDeserialization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
 		person := &model.User{}
