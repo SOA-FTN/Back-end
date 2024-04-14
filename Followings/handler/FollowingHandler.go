@@ -7,6 +7,8 @@ import (
 	"followings/repo"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type KeyProduct struct{}
@@ -56,6 +58,35 @@ func (m *FollowingHandler) FollowPerson(rw http.ResponseWriter, h *http.Request)
 
 	// Respond with a success status code
 	rw.WriteHeader(http.StatusCreated)
+}
+
+func (m *FollowingHandler) GetFollowRecommendations(rw http.ResponseWriter, r *http.Request) {
+	// Extract the username from the URL path
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	// Use the username as needed in the handler logic
+	// For example, you can pass it to the repository method to retrieve recommendations
+
+	// Call the repository method to retrieve follow recommendations for the specified username
+	recommendations, err := m.repo.GetFollowRecommendations(username)
+	if err != nil {
+		m.logger.Println("Error retrieving follow recommendations:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the list of recommendations to JSON and send it in the response
+	rw.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(rw).Encode(recommendations)
+	if err != nil {
+		m.logger.Println("Error encoding follow recommendations to JSON:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Set the status code to OK
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (m *FollowingHandler) MiddlewarePersonDeserialization(next http.Handler) http.Handler {

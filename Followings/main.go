@@ -51,6 +51,9 @@ func main() {
 	followPersonNode := router.Methods(http.MethodPost).Subrouter()
 	followPersonNode.HandleFunc("/followPerson", followingHandler.FollowPerson)
 
+	getFollowRecommendationsNode := router.Methods(http.MethodGet).Subrouter()
+	getFollowRecommendationsNode.HandleFunc("/getRecommendations/{username}", followingHandler.GetFollowRecommendations)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server

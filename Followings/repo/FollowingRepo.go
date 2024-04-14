@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"followings/model"
 	"log"
 	"os"
@@ -113,4 +114,42 @@ func (mr *FollowingRepo) FollowPerson(following *FollowingRelationship) error {
 		return err
 	}
 	return nil
+}
+
+func (mr *FollowingRepo) GetFollowRecommendations(username string) ([]string, error) {
+	ctx := context.Background()
+	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx) // Provide context.Background() as argument
+
+	// Query to find recommendations
+	query := `
+		MATCH (u:Person {username: $username})-[:IS_FOLLOWING]->(following)-[:IS_FOLLOWING]->(recommendation:Person)
+		WHERE NOT (u)-[:IS_FOLLOWING]->(recommendation)
+		RETURN recommendation.username AS username
+    `
+
+	// Execute the query
+	result, err := session.Run(ctx, query, map[string]interface{}{
+		"username": username,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Iterate through the results and extract usernames
+	var recommendations []string
+	for result.Next(ctx) {
+		record := result.Record()
+		recommendation, ok := record.Get("username")
+		if !ok {
+			return nil, errors.New("username not found in recommendation")
+		}
+		recommendations = append(recommendations, recommendation.(string))
+		mr.logger.Printf("Found recommendation: %s", recommendation)
+	}
+	if err := result.Err(); err != nil {
+		return nil, err
+	}
+
+	return recommendations, nil
 }
