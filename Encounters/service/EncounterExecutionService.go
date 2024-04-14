@@ -4,16 +4,18 @@ import (
 	"encounters/model"
 	"encounters/repo"
 	"errors"
+	"log"
 	"time"
 )
 
 type EncounterExecutionService struct {
+	logger *log.Logger
 	EncounterExecutionRepository *repo.EncounterExecutionRepository
 }
 
-func NewEncounterExecutionService(er *repo.EncounterExecutionRepository) *EncounterExecutionService {
+func NewEncounterExecutionService(l *log.Logger,er *repo.EncounterExecutionRepository) *EncounterExecutionService {
 	return &EncounterExecutionService{
-		EncounterExecutionRepository: er,
+		l,er,
 	}
 }
 
@@ -25,28 +27,19 @@ func (es *EncounterExecutionService) CreateEncounterExecution(encounterExecution
 		CompletionTime: encounterExecution.CompletionTime,
 		IsCompleted:    encounterExecution.IsCompleted,
 	}
-	err := es.EncounterExecutionRepository.CreateEncounterExecution(&newEncounterExecution)
-	if err != nil {
-		return err
-	}
-	return nil
+	return es.EncounterExecutionRepository.Insert(&newEncounterExecution)
 }
 
-func (es *EncounterExecutionService) GetAllEncounterExecutions() ([]model.EncounterExecution, error) {
-	encounters, err := es.EncounterExecutionRepository.GetAllEncounterExecutions()
+func (es *EncounterExecutionService) GetAllEncounterExecutions() (model.EncounterExecutions, error) {
+	encounterExecutions, err := es.EncounterExecutionRepository.GetAllEncounterExecutions()
 	if err != nil {
 		return nil, err
 	}
-	return encounters, nil
+	return encounterExecutions, nil
 }
 
 func (ees *EncounterExecutionService) GetEncounterExecutionByUserIDAndNotCompleted(userID int) (*model.EncounterExecution, error) {
-
-	execution, err := ees.EncounterExecutionRepository.GetByUserIDAndNotCompleted(userID)
-	if err != nil {
-		return nil, err
-	}
-	return execution, nil
+	return ees.EncounterExecutionRepository.GetByUserIDAndNotCompleted(userID);
 }
 
 func (ees *EncounterExecutionService) UpdateEncounterExecution(userID int) error {
@@ -59,12 +52,13 @@ func (ees *EncounterExecutionService) UpdateEncounterExecution(userID int) error
 		return errors.New("No encounter execution found for the user")
 	}
 
-	currentTime := time.Now()
-	execution.CompletionTime = &currentTime
+	currentTime := time.Now().String()
+	execution.CompletionTime = currentTime
 	execution.IsCompleted = true
 
-	if err := ees.EncounterExecutionRepository.Update(execution); err != nil {
+	if err := ees.EncounterExecutionRepository.Update(execution.ID.Hex(),execution); err != nil {
 		return err
 	}
 	return nil
+	
 }

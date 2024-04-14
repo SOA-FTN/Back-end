@@ -43,19 +43,28 @@ func main() {
 	defer cancel()
 
 	logger := log.New(os.Stdout, "[product-api] ", log.LstdFlags)
-	storeLogger := log.New(os.Stdout, "[patient-store] ", log.LstdFlags)
-
-
+	storeLogger := log.New(os.Stdout, "[encounter-store] ", log.LstdFlags)
+	executionLogger := log.New(os.Stdout, "[execution-store]", log.LstdFlags)
+	//ENCOUNTERS
 	encounterStore, err := repo.NewEncounterRepository(timeoutContext, storeLogger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	defer encounterStore.Disconnect(timeoutContext)
-
 	encounterStore.Ping()
+	//ENCOUNTER EXECUTION
+	encounterExecutionStore ,err := repo.NewEncounterExecutionRepository(timeoutContext,executionLogger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer encounterExecutionStore.Disconnect(timeoutContext)
+	encounterExecutionStore.Ping()
 
 	encounterService := service.NewEncounterService(logger,encounterStore)
 	encounterHandler := handler.NewEncounterHandler(logger,encounterService)
+
+	encounteExecutionService := service.NewEncounterExecutionService(logger,encounterExecutionStore)
+	encounterExecutionHandler := handler.NewEncounterExecutionHandler(logger,encounteExecutionService)
 
 	router := mux.NewRouter()
 	router.Use(encounterHandler.MiddlewareContentTypeSet)
@@ -70,7 +79,18 @@ func main() {
 	getEncounterRouter := router.Methods(http.MethodGet).Subrouter();
 	getEncounterRouter.HandleFunc("/getEncounter/{encounterId}", encounterHandler.GetEncounterByIDHandler)
 
+	createExecutionRouter :=router.Methods(http.MethodPost).Subrouter()
+	createExecutionRouter.HandleFunc("/createEncounterExecution", encounterExecutionHandler.CreateEncounterExecutionHandler)
+	createExecutionRouter.Use(encounterExecutionHandler.MIddlewareEncounterExecutionDeserialization)
+	
+	getAllExecutionsRouter :=router.Methods(http.MethodGet).Subrouter();
+	getAllExecutionsRouter.HandleFunc("/getEncounterExecutions", encounterExecutionHandler.GetAllEncounterExecutionsHandler)
 
+	getActiveEncounterRouter := router.Methods(http.MethodGet).Subrouter()
+	getActiveEncounterRouter.HandleFunc("/activeEncounterByUserId/{userId}", encounterExecutionHandler.GetEncounterExecutionByUserIDAndNotCompletedHandler)
+
+	completeExecutionRouter := router.Methods(http.MethodGet).Subrouter()
+	completeExecutionRouter.HandleFunc("/completeExecution/{userId}", encounterExecutionHandler.UpdateEncounterExecutionHandler)
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 

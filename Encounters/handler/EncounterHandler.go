@@ -56,7 +56,6 @@ func (eh *EncounterHandler) CreateEncounterHandler(w http.ResponseWriter, r *htt
 
 func (eh *EncounterHandler) CreateEncounterHandler(rw http.ResponseWriter, h *http.Request) {
 	encounter := h.Context().Value(KeyProduct{}).(*model.CreateEncounter)
-	log.Println(encounter)
 	if err := eh.EncounterService.CreateEncounter(encounter); err != nil {
 		http.Error(rw, "Failed to create encounter", http.StatusInternalServerError)
 		log.Println("ne")
