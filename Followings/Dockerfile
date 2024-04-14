@@ -1,14 +1,12 @@
-FROM golang:latest
-
-RUN mkdir /build
-WORKDIR /build
-
+FROM golang:alpine as build_container
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . .
+RUN go build -o server
 
-
-RUN go get -d -v
-RUN cd /build && go build main.go
-
-EXPOSE 8085
-
-ENTRYPOINT ["/build/main"]
+FROM alpine
+COPY --from=build_container /app/server /usr/bin
+EXPOSE 8089
+ENTRYPOINT ["server"]
