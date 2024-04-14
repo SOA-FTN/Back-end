@@ -48,6 +48,9 @@ func main() {
 	postPersonNode.HandleFunc("/person", followingHandler.CreatePerson)
 	postPersonNode.Use(followingHandler.MiddlewarePersonDeserialization)
 
+	followPersonNode := router.Methods(http.MethodPost).Subrouter()
+	followPersonNode.HandleFunc("/followPerson", followingHandler.FollowPerson)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server

@@ -136,7 +136,7 @@ volumes:
     name: stakeholders-data
   neo4j_data:
     driver: local
-    name: stakeholders-data
+    name: neo4j-data
 
 networks:
   database:

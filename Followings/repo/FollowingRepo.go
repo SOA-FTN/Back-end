@@ -61,7 +61,7 @@ func (mr *FollowingRepo) WritePerson(person *model.User) error {
 	savedPerson, err := session.ExecuteWrite(ctx,
 		func(transaction neo4j.ManagedTransaction) (any, error) {
 			result, err := transaction.Run(ctx,
-				"CREATE (p:Person) SET p.username = $username, RETURN p.username + ', from node ' + id(p)",
+				"CREATE (p:Person {username: $username}) RETURN p.username + ', from node ' + id(p)",
 				map[string]any{"username": person.UserName})
 			if err != nil {
 				return nil, err
@@ -78,5 +78,39 @@ func (mr *FollowingRepo) WritePerson(person *model.User) error {
 		return err
 	}
 	mr.logger.Println(savedPerson.(string))
+	return nil
+}
+
+// Define a struct to represent the following relationship
+type FollowingRelationship struct {
+	FollowerUsername string `json:"followerUsername"`
+	FollowedUsername string `json:"followedUsername"`
+}
+
+// Write a repository method to create the following relationship
+func (mr *FollowingRepo) FollowPerson(following *FollowingRelationship) error {
+	// Neo4J Sessions are lightweight so we create one for each transaction
+	// Sessions are NOT thread safe
+	ctx := context.Background()
+	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	// ExecuteWrite for write transactions (Create/Update/Delete)
+	_, err := session.ExecuteWrite(ctx,
+		func(transaction neo4j.ManagedTransaction) (any, error) {
+			_, err := transaction.Run(ctx,
+				"MATCH (follower:Person {username: $followerUsername}) "+
+					"MATCH (followed:Person {username: $followedUsername}) "+
+					"MERGE (follower)-[:IS_FOLLOWING]->(followed)",
+				map[string]any{
+					"followerUsername": following.FollowerUsername,
+					"followedUsername": following.FollowedUsername,
+				})
+			return nil, err
+		})
+	if err != nil {
+		mr.logger.Println("Error following person:", err)
+		return err
+	}
 	return nil
 }
