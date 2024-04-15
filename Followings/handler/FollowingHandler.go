@@ -116,6 +116,38 @@ func (m *FollowingHandler) GetFollowedUsers(rw http.ResponseWriter, h *http.Requ
 	rw.WriteHeader(http.StatusOK)
 }
 
+func (fh *FollowingHandler) IsFollowing(rw http.ResponseWriter, req *http.Request) {
+	var requestBody struct {
+		FollowerUsername string `json:"followerUsername"`
+		FollowedUsername string `json:"followedUsername"`
+	}
+
+	err := json.NewDecoder(req.Body).Decode(&requestBody)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	isFollowing, err := fh.repo.IsFollowing(requestBody.FollowerUsername, requestBody.FollowedUsername)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the boolean value to a string representation
+	var result string
+	if isFollowing {
+		result = "true"
+	} else {
+		result = "false"
+	}
+
+	// Write the response
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(result))
+}
+
 func (m *FollowingHandler) MiddlewarePersonDeserialization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
 		person := &model.User{}

@@ -186,3 +186,37 @@ func (mr *FollowingRepo) GetFollowedUsers(username string) (model.Followed, erro
 
 	return result.(model.Followed), nil
 }
+
+func (mr *FollowingRepo) IsFollowing(followerUsername, followedUsername string) (bool, error) {
+	ctx := context.Background()
+	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	query := `
+		MATCH (follower:Person {username: $followerUsername})-[:IS_FOLLOWING]->(followed:Person {username: $followedUsername})
+		RETURN COUNT(*) > 0 AS isFollowing
+	`
+
+	result, err := session.Run(ctx, query, map[string]interface{}{
+		"followerUsername": followerUsername,
+		"followedUsername": followedUsername,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	if result.Next(ctx) {
+		record := result.Record()
+		isFollowing, ok := record.Get("isFollowing")
+		if !ok {
+			return false, errors.New("failed to retrieve isFollowing from result")
+		}
+		return isFollowing.(bool), nil
+	}
+
+	if err := result.Err(); err != nil {
+		return false, err
+	}
+
+	return false, nil
+}
