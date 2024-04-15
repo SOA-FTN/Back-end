@@ -3,18 +3,38 @@ package service
 import (
 	"encounters/model"
 	"encounters/repo"
+	"log"
 )
 
 type EncounterService struct {
+	logger *log.Logger
 	EncounterRepository *repo.EncounterRepository
 }
 
-func NewEncounterService(er *repo.EncounterRepository) *EncounterService {
+func NewEncounterService(l *log.Logger,er *repo.EncounterRepository) *EncounterService {
 	return &EncounterService{
-		EncounterRepository: er,
+		l,er,
 	}
 }
 
+func (es *EncounterService) CreateEncounter(encounter *model.CreateEncounter) error {
+	newEncounter := model.Encounter{
+		Name:             encounter.Name,
+		Description:      encounter.Description,
+		XpPoints:         encounter.XpPoints,
+		Status:           model.EncounterStatus(ConvertEncounterStatusToInt(encounter.Status)),
+		Type:             model.EncounterType(ConvertEncounterTypeToInt(encounter.Type)),
+		Latitude:         encounter.Latitude,
+		Longitude:        encounter.Longitude,
+		ShouldBeApproved: encounter.ShouldBeApproved,
+	}
+	log.Println("=========================")
+	log.Println(newEncounter)
+	return es.EncounterRepository.Insert(&newEncounter)
+}
+
+
+/*
 func (es *EncounterService) CreateEncounter(encounter *model.Encounter) error {
 
 	newEncounter := model.Encounter{
@@ -33,6 +53,7 @@ func (es *EncounterService) CreateEncounter(encounter *model.Encounter) error {
 	}
 	return nil
 }
+*/
 
 func ConvertEncounterStatusToInt(status string) int {
 	switch status {
@@ -60,14 +81,15 @@ func ConvertEncounterTypeToInt(encounterType string) int {
 	}
 }
 
-func (es *EncounterService) GetAllEncounters() ([]model.Encounter, error) {
+
+func (es *EncounterService) GetAllEncounters() (model.Encounters, error) {
 	encounters, err := es.EncounterRepository.GetAllEncounters()
 	if err != nil {
 		return nil, err
 	}
 	return encounters, nil
 }
-
+/*
 func (service *EncounterService) UpdateEncounter(encounter *model.Encounter) (*model.Encounter, error) {
 	updatedEncounter, err := service.EncounterRepository.UpdateEncounter(encounter)
 	if err != nil {
@@ -75,7 +97,8 @@ func (service *EncounterService) UpdateEncounter(encounter *model.Encounter) (*m
 	}
 	return updatedEncounter, nil
 }
-
-func (es *EncounterService) GetEncounterByID(id int) (*model.Encounter, error) {
+*/
+func (es *EncounterService) GetEncounterByID(id string) (*model.Encounter, error) {
 	return es.EncounterRepository.GetEncounterByID(id)
 }
+
