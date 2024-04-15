@@ -57,6 +57,9 @@ func main() {
 	getFollowedUser := router.Methods(http.MethodGet).Subrouter()
 	getFollowedUser.HandleFunc("/getFollowedUsers/{username}", followingHandler.GetFollowedUsers)
 
+	getUsersExcept := router.Methods(http.MethodGet).Subrouter()
+	getUsersExcept.HandleFunc("/getUsersExcept/{username}", followingHandler.GetUsersExcept)
+
 	isFollowedNode := router.Methods(http.MethodPost).Subrouter()
 	isFollowedNode.HandleFunc("/isFollowing", followingHandler.IsFollowing)
 

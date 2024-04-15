@@ -171,3 +171,30 @@ func (m *FollowingHandler) MiddlewareContentTypeSet(next http.Handler) http.Hand
 		next.ServeHTTP(rw, h)
 	})
 }
+
+func (m *FollowingHandler) GetUsersExcept(rw http.ResponseWriter, h *http.Request) {
+	m.logger.Println("Entered GetUsersExcept method")
+
+	// Extract the username from the request parameters
+	vars := mux.Vars(h)
+	username := vars["username"]
+
+	// Call the repository method to retrieve users except the specified username
+	users, err := m.repo.GetUsersExcept(username)
+	if err != nil {
+		m.logger.Println("Error retrieving users except:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the list of users to JSON
+	err = json.NewEncoder(rw).Encode(users)
+	if err != nil {
+		m.logger.Println("Error encoding JSON:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success status code
+	rw.WriteHeader(http.StatusOK)
+}

@@ -187,6 +187,39 @@ func (mr *FollowingRepo) GetFollowedUsers(username string) (model.Followed, erro
 	return result.(model.Followed), nil
 }
 
+func (mr *FollowingRepo) GetUsersExcept(usernameToExclude string) (model.Users, error) {
+	ctx := context.Background()
+	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	result, err := session.ExecuteRead(ctx,
+		func(transaction neo4j.ManagedTransaction) (any, error) {
+			result, err := transaction.Run(ctx,
+				`MATCH (u:Person)
+                 WHERE u.username <> $usernameToExclude
+                 RETURN u.username AS username`, map[string]interface{}{"usernameToExclude": usernameToExclude})
+			if err != nil {
+				return nil, err
+			}
+
+			var users model.Users
+			for result.Next(ctx) {
+				record := result.Record()
+				username, _ := record.Get("username")
+				users = append(users, &model.User{UserName: username.(string)})
+			}
+
+			return users, nil
+		})
+
+	if err != nil {
+		mr.logger.Println("Error querying users:", err)
+		return nil, err
+	}
+
+	return result.(model.Users), nil
+}
+
 func (mr *FollowingRepo) IsFollowing(followerUsername, followedUsername string) (bool, error) {
 	ctx := context.Background()
 	session := mr.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
