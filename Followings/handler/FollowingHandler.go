@@ -179,16 +179,39 @@ func (m *FollowingHandler) GetUsersExcept(rw http.ResponseWriter, h *http.Reques
 	vars := mux.Vars(h)
 	username := vars["username"]
 
-	// Call the repository method to retrieve users except the specified username
-	users, err := m.repo.GetUsersExcept(username)
+	// Call the repository method to retrieve users except the specified one
+	usersExcept, err := m.repo.GetUsersExcept(username)
 	if err != nil {
-		m.logger.Println("Error retrieving users except:", err)
+		m.logger.Println("Database exception:", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Convert the list of users to JSON
-	err = json.NewEncoder(rw).Encode(users)
+	// Convert the list of users except to JSON
+	err = json.NewEncoder(rw).Encode(usersExcept)
+	if err != nil {
+		m.logger.Println("Error encoding JSON:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success status code
+	rw.WriteHeader(http.StatusOK)
+}
+
+func (m *FollowingHandler) GetAllUsernames(rw http.ResponseWriter, r *http.Request) {
+	m.logger.Println("Entered GetAllUsernames method")
+
+	// Call the repository method to retrieve all usernames
+	usernames, err := m.repo.GetAllUsernames()
+	if err != nil {
+		m.logger.Println("Database exception:", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the list of usernames to JSON
+	err = json.NewEncoder(rw).Encode(usernames)
 	if err != nil {
 		m.logger.Println("Error encoding JSON:", err)
 		rw.WriteHeader(http.StatusInternalServerError)

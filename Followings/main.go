@@ -63,6 +63,9 @@ func main() {
 	isFollowedNode := router.Methods(http.MethodPost).Subrouter()
 	isFollowedNode.HandleFunc("/isFollowing", followingHandler.IsFollowing)
 
+	getAllUsernamesNode := router.Methods(http.MethodGet).Subrouter()
+	getAllUsernamesNode.HandleFunc("/getAllUsernames", followingHandler.GetAllUsernames)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server
