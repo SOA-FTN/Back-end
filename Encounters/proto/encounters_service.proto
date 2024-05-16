@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+option go_package = "proto/encounters";
+
+service EncounterService {
+    rpc CreateEncounterRpc(CreateEncounterRequest) returns (CreateEncounterResponse);
+    rpc GetAllEncountersRpc(GetAllEncountersRequest) returns (GetAllEncountersResponse);
+    rpc GetEncounterByIDRpc(GetEncounterByIDRequest) returns (GetEncounterByIDResponse);
+} 
+
+service EncounterExecutionService {
+    rpc CreateExecutionRpc(CreateExecutionRequest) returns(CreateExecutionResponse);
+    rpc GetAllExecutionsRpc(GetAllExecutionsRequest) returns (GetAllExecutionsResponse);
+    rpc GetExecutionByUserIDRpc(GetExecutionByUserIdRequest) returns (GetExecutionByUserIdResponse);
+    rpc UpdateExecutionRpc(UpdateExecutionRequest) returns (UpdateExecutionResponse);
+
+}
+
+enum EncounterStatus {
+  ACTIVE = 0;
+  DRAFT = 1;
+  ARCHIVED = 2;
+}
+
+enum EncounterType {
+  SOCIAL = 0;
+  LOCATION = 1;
+  MISC = 2;
+}
+
+message Encounter {
+  string id = 1;                      // Jedinstveni identifikator susreta.
+  string name = 2;                    // Ime susreta.
+  string description = 3;          // Opis susreta.
+  int32 xp_points = 4;             // XP poeni susreta.
+  EncounterStatus status = 5;  // Status susreta.
+  EncounterType type = 6;          // Tip susreta.
+  double latitude = 7;                // Geografska širina.
+  double longitude = 8;             // Geografska dužina.
+  bool should_be_approved = 9; // Da li susret treba da bude odobren.
+}
+
+message CreateEncounterRequest {
+  string name = 1;                    // Ime susreta.
+  string description = 2;         // Opis susreta.
+  int32 xp_points = 3;             // XP poeni susreta.
+  EncounterStatus status = 4; // Status susreta.
+  EncounterType type = 5;        // Tip susreta.
+  double latitude = 6;               // Geografska širina.
+  double longitude = 7;            // Geografska dužina.
+  bool should_be_approved = 8; // Da li susret treba da bude odobren.
+}
+
+// Poruka koja se koristi za odgovor na zahtev za kreiranje susreta.
+message CreateEncounterResponse {
+  Encounter encounter = 1; // Kreirani susret.
+}
+//GET ALL
+message GetAllEncountersRequest {
+  // Možemo dodati neke parametre ako je potrebno
+}
+
+message GetAllEncountersResponse {
+  repeated Encounter encounters = 1;
+}
+
+//GETBYID
+message GetEncounterByIDRequest {
+    string id = 1; // Jedinstveni identifikator susreta
+}
+
+message GetEncounterByIDResponse {
+    Encounter encounter = 1; // Susret koji je pronađen
+}
+
+//=====================================================================================
+
+message EncounterExecution {
+    string id = 1;                       // Jedinstveni identifikator izvršenja susreta.
+    int64 user_id = 2;                   // ID korisnika.
+    string encounter_id = 3;             // ID susreta.
+    string completion_time = 4;          // Vreme završetka izvršenja.
+    bool is_completed = 5;               // Da li je izvršenje završeno.
+}
+
+message CreateExecutionRequest {
+    int64 user_id = 1;                // ID korisnika.
+    string encounter_id = 2;           // ID susreta.
+    string completion_time = 3;      // Vreme završetka susreta (u formatu koji vam odgovara).
+    bool is_completed = 4;             // Da li je susret završen.W
+}
+
+message CreateExecutionResponse {
+  EncounterExecution execution = 1; // Kreirani susret.
+}
+//GETALL
+message GetAllExecutionsRequest {
+  // Možemo dodati neke parametre ako je potrebno
+}
+
+message GetAllExecutionsResponse {
+  repeated EncounterExecution executions = 1;
+}
+
+message GetExecutionByUserIdRequest{
+  string userId = 1;
+}
+
+message GetExecutionByUserIdResponse{
+  EncounterExecution execution = 1;
+}
+
+message UpdateExecutionRequest{
+    string userId = 1;
+}
+
+message UpdateExecutionResponse{
+}
+
+

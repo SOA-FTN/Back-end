@@ -3,6 +3,7 @@ package service
 import (
 	"encounters/model"
 	"encounters/repo"
+	"errors"
 	"log"
 )
 
@@ -18,6 +19,10 @@ func NewEncounterService(l *log.Logger,er *repo.EncounterRepository) *EncounterS
 }
 
 func (es *EncounterService) CreateEncounter(encounter *model.CreateEncounter) error {
+	if es.EncounterRepository == nil {
+		log.Println("REPOSITORY ERRORCINA")
+        return errors.New("EncounterRepository is nil")
+    }
 	newEncounter := model.Encounter{
 		Name:             encounter.Name,
 		Description:      encounter.Description,

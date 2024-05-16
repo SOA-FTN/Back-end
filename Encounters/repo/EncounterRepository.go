@@ -78,9 +78,11 @@ func (tr *EncounterRepository) CreateEncounter(encounter *model.Encounter) error
 func(enc *EncounterRepository) Insert(encounter *model.Encounter) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	log.Println("=====================================")
+	log.Println(encounter);
 	encountersCollection := enc.getCollection()
 
-	result,err := encountersCollection.InsertOne(ctx,&encounter)
+	result,err := encountersCollection.InsertOne(ctx,encounter)
 	if err != nil {
 		enc.logger.Println(err)
 		return err

@@ -104,14 +104,14 @@ func (er *EncounterExecutionRepository) GetAllEncounterExecutions() (model.Encou
 			er.logger.Println(err)
 			return nil, err
 		}
-
-		// Konvertuj CompletionTime u željeni format stringa
-		t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", exec.CompletionTime)
-        if err != nil {
-            er.logger.Println(err)
-            return nil, err
-        }
-        exec.CompletionTime = t.Format("2006-01-02T15:04:05")
+		
+		// // Konvertuj CompletionTime u željeni format stringa
+		// t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", exec.CompletionTime)
+        // if err != nil {
+        //     er.logger.Println(err)
+        //     return nil, err
+        // }
+        // exec.CompletionTime = t.Format("2006-01-02T15:04:05")
 
         encounterExecutions = append(encounterExecutions, &exec)
     }
@@ -144,12 +144,12 @@ func (er *EncounterExecutionRepository) GetByUserIDAndNotCompleted(userID int) (
     }
 
     // Konvertuj CompletionTime u željeni format stringa
-    t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", encounterExecution.CompletionTime)
-    if err != nil {
-        er.logger.Println(err)
-        return nil, err
-    }
-    encounterExecution.CompletionTime = t.Format("2006-01-02T15:04:05")
+    // t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", encounterExecution.CompletionTime)
+    // if err != nil {
+    //     er.logger.Println(err)
+    //     return nil, err
+    // }
+    // encounterExecution.CompletionTime = t.Format("2006-01-02T15:04:05")
 
     return encounterExecution, nil
 }

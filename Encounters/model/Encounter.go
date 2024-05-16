@@ -27,7 +27,7 @@ type Encounter struct {
 	ID           	 primitive.ObjectID  `bson:"_id,omitempty" json:"id"`
 	Name             string				 `bson:"name" json:"name"`
 	Description      string 			 `bson:"description,omitempty" json:"description"`
-	XpPoints         int				 `bson:"xppoints" json:"xppoints"`
+	XpPoints         int32				 `bson:"xppoints" json:"xppoints"`
 	Status           EncounterStatus	 `bson:"status" json:"status"`
 	Type             EncounterType		 `bson:"type" json:"type"`
 	Latitude         float64  			 `bson:"latitude,omitempty" json:"latitude"`
@@ -38,7 +38,7 @@ type Encounter struct {
 type CreateEncounter struct {
 	Name             string				`bson:"name,omitempty" json:"name"`
 	Description      string				`bson:"description,omitempty" json:"description"`
-	XpPoints         int				`bson:"xppoints" json:"xppoints"`
+	XpPoints         int32				`bson:"xppoints" json:"xppoints"`
 	Status           string				`bson:"status" json:"status"`
 	Type             string				`bson:"type" json:"type"`
 	Latitude         float64			`bson:"latitude,omitempty" json:"latitude"`

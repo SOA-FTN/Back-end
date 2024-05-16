@@ -32,33 +32,7 @@ func (eh *EncounterExecutionHandler) CreateEncounterExecutionHandler(rw http.Res
 	}
 
 	rw.WriteHeader(http.StatusCreated)
-	/*
-	var requestBody bytes.Buffer
-
-	if _, err := io.Copy(&requestBody, r.Body); err != nil {
-		log.Println("Failed to read request body:", err)
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-		return
-	}
-
-	r.Body = io.NopCloser(&requestBody)
-
-	var enc model.EncounterExecution
-	if err := json.NewDecoder(&requestBody).Decode(&enc); err != nil {
-		log.Println(err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if err := eh.EncounterExecutionService.CreateEncounterExecution(&enc); err != nil {
-		http.Error(w, "Failed to create encounter", http.StatusInternalServerError)
-
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(enc)
-	*/
+	
 }
 
 func (eh *EncounterExecutionHandler) GetAllEncounterExecutionsHandler(w http.ResponseWriter, r *http.Request) {
