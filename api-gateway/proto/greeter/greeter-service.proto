@@ -76,6 +76,29 @@ service EncounterExecutionService {
 
 }
 
+service StakeholderService {
+    rpc RegistrationRpc(RegistrationRequest) returns (RegistrationResponse){
+      option(google.api.http) = {
+        post:"/api/stakeholders/registration"
+        body: "*"
+      };
+    }
+
+    rpc GetProfileRpc(GetProfileRequest) returns (GetProfileResponse){
+      option (google.api.http) = {
+        get: "/api/stakeholders/getProfile/{id}"
+      };
+    }
+
+    rpc UpdateProfileRpc(UpdateProfileRequest) returns (UpdateProfileResponse){
+      option (google.api.http) = {
+      put: "/api/stakeholders/updateProfile"
+      body:"*"
+      };
+    }
+
+}
+
 
 enum EncounterStatus {
   ACTIVE = 0;
@@ -179,3 +202,71 @@ message UpdateExecutionRequest{
 
 message UpdateExecutionResponse{
 }
+
+//=========================================================================
+enum UserRole {
+    administrator = 0;
+    tourist = 1;
+    author = 2;
+}
+
+message User {
+    uint64 id = 1;  // gorm.Model id polje
+    string created_at = 2;  // gorm.Model created_at polje
+    string updated_at = 3;  // gorm.Model updated_at polje
+    string deleted_at = 4;  // gorm.Model deleted_at polje
+    string username = 5;  // UserName polje
+    string password = 6;  // Password polje
+    UserRole role = 7;  // Role polje
+    bool is_active = 8;  // IsActive polje
+    string verification_token = 9;  // VerificationToken polje
+    Person person = 10;  // Person polje
+}
+
+message Person {
+    uint64 id = 1;  // gorm.Model id polje
+    uint32 user_id = 2;  // UserID polje
+    string name = 3;  // Name polje
+    string surname = 4;  // Surname polje
+    string profile_image = 5;  // Image polje
+    string email = 6;  // Email polje
+    string bio = 7;  // Bio polje
+    string quote = 8;  // Quote polje
+}
+
+message RegistrationRequest {
+    string username = 1;  // Username polje
+    string password = 2;  // Password polje
+    string email = 3;  // Email polje
+    string name = 4;  // Name polje
+    string surname = 5;  // Surname polje
+    string role = 6;  // Role polje
+}
+
+message RegistrationResponse{
+    string message = 1;
+}
+
+message GetProfileRequest {
+    string id = 1;
+}
+
+message GetProfileResponse{
+    Person person = 1;
+}
+
+message UpdateProfileRequest {
+    uint64 id = 1;  // gorm.Model id polje
+    uint32 user_id = 2;  // UserID polje
+    string name = 3;  // Name polje
+    string surname = 4;  // Surname polje
+    string profile_image = 5;  // Image polje
+    string email = 6;  // Email polje
+    string bio = 7;  // Bio polje
+    string quote = 8;  // Quote polje
+}
+
+message UpdateProfileResponse {
+    Person person = 1;
+}
+

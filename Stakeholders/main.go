@@ -2,14 +2,21 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"stakeholders/config"
 	"stakeholders/handler"
 	"stakeholders/model"
+	stakeholders "stakeholders/proto"
 	"stakeholders/repo"
 	"stakeholders/service"
+	"syscall"
 
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -63,15 +70,54 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
+
+	cfg := config.GetConfig()
+	//GRPC
+	listener, err := net.Listen("tcp", cfg.Address)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(listener)
+	//timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	//defer cancel()
+
 	userRepo := &repo.UserRepository{DatabaseConnection: database}
-	userService := &service.UserService{UserRepo: userRepo}
-	userHandler := &handler.UserHandler{UserService: userService}
 	authRepo := &repo.AuthRepository{DatabaseConnection: database}
+	userService := &service.UserService{UserRepo: userRepo}
 	authService := &service.AuthService{AuthRepo: authRepo}
+	userHandlergRPC := handler.NewUserHandlergRPC(userService,authService);
+	userHandler := &handler.UserHandler{UserService: userService}
+	//authRepo := &repo.AuthRepository{DatabaseConnection: database}
+	//authService := &service.AuthService{AuthRepo: authRepo}
 	authHandler := &handler.AuthHandler{AuthService: authService}
 	rateRepo := &repo.RateRepository{DatabaseConnection: database}
 	rateService := &service.RateService{RateRepo: rateRepo}
 	rateHandler := &handler.RateHandler{RateService: rateService}
+
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+
+	stakeholders.RegisterStakeholderServiceServer(grpcServer,userHandlergRPC);
+
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Fatal("server error: ", err)
+		}
+	}()
+
+	stopCh := make(chan os.Signal)
+	signal.Notify(stopCh, syscall.SIGTERM)
+
+	<-stopCh
+
+	grpcServer.Stop()
+
+
 
 	startServer(userHandler, authHandler, rateHandler)
 }

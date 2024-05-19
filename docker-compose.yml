@@ -90,11 +90,10 @@ services:
     image: stakeholders # naziv slike koju build-uje
     restart: always
     environment:
+      STAKEHOLDERS_SERVICE_ADDRESS: ${STAKEHOLDERS_SERVICE_ADDRESS}
       DATABASE_URL: "host=stakeholdersdb user=postgres password=super dbname=SOA sslmode=disable"
     networks:
       - database
-    ports:
-      - 8082:8082
     depends_on:
       - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
 
@@ -176,10 +175,12 @@ services:
     environment:
       GREETER_SERVICE_ADDRESS: greeter_service:8000
       ENCOUNTER_SERVICE_ADDRESS: encounters:8083
+      STAKEHOLDERS_SERVICE_ADDRESS: stakeholders:8082
       GATEWAY_ADDRESS: ${GATEWAY_ADDRESS}
     depends_on:
       - greeter_service
       - encounters
+      - stakeholders
     networks:
       - database
     ports:

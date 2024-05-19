@@ -35,6 +35,13 @@ func main() {
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
+
+	conn3 , err := grpc.DialContext(
+		context.Background(),
+		cfg.StakeholdersServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	
 	if err != nil {
 		log.Fatalln("Failed to dial Encounter server:", err)
@@ -65,6 +72,13 @@ func main() {
 		context.Background(),
 		gwmux,
 		clientExecution,
+	)
+
+	clientStakeholder := greeter.NewStakeholderServiceClient(conn3)
+	err = greeter.RegisterStakeholderServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		clientStakeholder,
 	)
 
 	gwServer := &http.Server{
