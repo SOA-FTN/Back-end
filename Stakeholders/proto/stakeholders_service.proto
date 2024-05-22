@@ -7,6 +7,10 @@ service StakeholderService {
     rpc UpdateProfileRpc(UpdateProfileRequest) returns (UpdateProfileResponse);
 }
 
+service AuthService {
+    rpc LoginRpc(LoginRequest) returns (LoginResponse);
+}
+
 enum UserRole {
     administrator = 0;
     tourist = 1;
@@ -73,3 +77,12 @@ message UpdateProfileResponse {
     Person person = 1;
 }
 
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    uint64 id = 1;
+    string access_token = 2;
+}

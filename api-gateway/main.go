@@ -81,6 +81,13 @@ func main() {
 		clientStakeholder,
 	)
 
+	clientAuthentication := greeter.NewAuthServiceClient(conn3)
+	err = greeter.RegisterAuthServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		clientAuthentication,
+	)
+
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
 		Handler: gwmux,

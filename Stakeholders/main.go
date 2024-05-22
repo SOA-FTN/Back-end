@@ -91,6 +91,7 @@ func main() {
 	userService := &service.UserService{UserRepo: userRepo}
 	authService := &service.AuthService{AuthRepo: authRepo}
 	userHandlergRPC := handler.NewUserHandlergRPC(userService,authService);
+	authHandlergRPC := handler.NewAuthHandlergRPC(authService)
 	userHandler := &handler.UserHandler{UserService: userService}
 	//authRepo := &repo.AuthRepository{DatabaseConnection: database}
 	//authService := &service.AuthService{AuthRepo: authRepo}
@@ -103,6 +104,7 @@ func main() {
 	reflection.Register(grpcServer)
 
 	stakeholders.RegisterStakeholderServiceServer(grpcServer,userHandlergRPC);
+	stakeholders.RegisterAuthServiceServer(grpcServer,authHandlergRPC);
 
 	go func() {
 		if err := grpcServer.Serve(listener); err != nil {

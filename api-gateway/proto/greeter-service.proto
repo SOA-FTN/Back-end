@@ -41,6 +41,10 @@ service StakeholderService {
     rpc UpdateProfileRpc(UpdateProfileRequest) returns (UpdateProfileResponse);
 }
 
+service AuthService {
+    rpc LoginRpc(LoginRequest) returns (LoginResponse);
+}
+
 
 enum EncounterStatus {
   ACTIVE = 0;
@@ -209,4 +213,14 @@ message UpdateProfileRequest {
 
 message UpdateProfileResponse {
     Person person = 1;
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    uint64 id = 1;
+    string access_token = 2;
 }
