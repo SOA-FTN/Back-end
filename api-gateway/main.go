@@ -4,16 +4,72 @@ import (
 	"context"
 	"example/gateway/config"
 	"example/gateway/proto/greeter"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+func allowCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func validateToken(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		allowedEndpoints := map[string]bool{
+            "/api/auth/login":                   true,
+            "/api/stakeholders/registration":    true,
+        }
+
+		if allowed, ok := allowedEndpoints[r.URL.Path]; ok && allowed {
+            next.ServeHTTP(w, r)
+            return
+        }
+
+        tokenString := r.Header.Get("Authorization")
+        if tokenString == "" {
+            http.Error(w, "Missing token", http.StatusUnauthorized)
+            return
+        }
+
+        tokenString = tokenString[len("Bearer "):]
+
+        token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+            if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+                return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+            }
+            // Replace this with your secret key
+            return []byte("explorer_secret_key"), nil
+        })
+
+        if err != nil || !token.Valid {
+            http.Error(w, "Invalid token", http.StatusUnauthorized)
+            return
+        }
+
+        next.ServeHTTP(w, r)
+    })
+}
 
 func main() {
 	cfg := config.GetConfig()
@@ -90,7 +146,7 @@ func main() {
 
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
-		Handler: gwmux,
+		Handler: allowCORS(validateToken(gwmux)),
 	}
 
 	go func() {
