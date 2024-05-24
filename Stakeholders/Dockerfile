@@ -12,6 +12,7 @@ COPY ./handler ./handler
 COPY ./model ./model
 COPY ./repo ./repo
 COPY ./service ./service
+COPY ./monitoring ./monitoring
 
 
 RUN go get -d -v

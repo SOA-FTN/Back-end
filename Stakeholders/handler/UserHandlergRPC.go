@@ -8,6 +8,7 @@ import (
 	stakeholders "stakeholders/proto"
 	"stakeholders/service"
 
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -26,6 +27,11 @@ func NewUserHandlergRPC(us  *service.UserService, as *service.AuthService) *User
 }
 
 func (uh *UserHandlergRPC) RegistrationRpc(ctx context.Context , req *stakeholders.RegistrationRequest) (*stakeholders.RegistrationResponse,error) {
+
+    tracer := otel.Tracer("stakeholder-service")
+	_, span := tracer.Start(ctx, "Register-User")
+	defer span.End()
+
 	registration := model.Registration {
 		Username: req.Username,
         Password: req.Password,

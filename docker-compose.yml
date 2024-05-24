@@ -1,4 +1,8 @@
 version: "3.8"
+x-logging: &fluent-bit
+  driver: fluentd
+  options:
+    fluentd-address: ${FLUENT_BIT_ADDRESS}:24224
 
 services:
   tours:
@@ -92,8 +96,10 @@ services:
     environment:
       STAKEHOLDERS_SERVICE_ADDRESS: ${STAKEHOLDERS_SERVICE_ADDRESS}
       DATABASE_URL: "host=stakeholdersdb user=postgres password=super dbname=SOA sslmode=disable"
+      JAEGER_ENDPOINT: ${JAEGER_ENDPOINT}
     networks:
       - database
+      - monitoring
     depends_on:
       - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
 
@@ -102,6 +108,7 @@ services:
     container_name: stakeholders-database
     networks:
       - database
+      - monitoring
     ports:
       - 5435:5432 # na pgAdmin-u se moze povezati na bazu na port 5433
     environment:
@@ -203,3 +210,5 @@ networks:
   database:
     name: database
     driver: bridge
+  monitoring:
+    external: true
