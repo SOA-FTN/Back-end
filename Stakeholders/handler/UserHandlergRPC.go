@@ -61,6 +61,9 @@ func (uh *UserHandlergRPC) RegistrationRpc(ctx context.Context , req *stakeholde
 }
 
 func (uh *UserHandlergRPC) GetProfileRpc(ctx context.Context , req *stakeholders.GetProfileRequest) (*stakeholders.GetProfileResponse,error) {
+	tracer := otel.Tracer("stakeholder-service")
+	_, span := tracer.Start(ctx, "Get-Profile")
+	defer span.End()
 	userId := req.Id;
 	person ,err := uh.UserService.GetPersonByUserId(&userId)
 
@@ -83,6 +86,9 @@ func (uh *UserHandlergRPC) GetProfileRpc(ctx context.Context , req *stakeholders
 }
 
 func (uh *UserHandlergRPC) UpdateProfileRpc(ctx context.Context, req *stakeholders.UpdateProfileRequest) (*stakeholders.UpdateProfileResponse, error) {
+	tracer := otel.Tracer("stakeholder-service")
+	_, span := tracer.Start(ctx, "Update profile")
+	defer span.End()
 	log.Printf(req.String())
 	//log.Printf("Received person: %+v", person)
     // Convert gRPC Person message to the model.Person struct
