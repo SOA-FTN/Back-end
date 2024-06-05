@@ -105,7 +105,7 @@ services:
     networks:
       - database
       - monitoring
-    logging: *fluent-bit`
+    logging: *fluent-bit
     depends_on:
       - stakeholdersdb # pre pokretanja ovog kontejnera treba prvo da se pokrene baza
 
