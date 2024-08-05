@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"example/gateway/config"
 	"example/gateway/proto/greeter"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -39,6 +41,8 @@ func validateToken(next http.Handler) http.Handler {
 		allowedEndpoints := map[string]bool{
             "/api/auth/login":                   true,
             "/api/stakeholders/registration":    true,
+			"/api/encounter/createEncounter":    true,
+			"/api/encounter/getAll":    true,
         }
 
 		if allowed, ok := allowedEndpoints[r.URL.Path]; ok && allowed {
@@ -71,6 +75,40 @@ func validateToken(next http.Handler) http.Handler {
     })
 }
 
+func ForwardToAWSAPI(method string, awsAPIURL string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+			return
+		}
+
+		req, err := http.NewRequest(method, awsAPIURL, bytes.NewBuffer(body))
+		if err != nil {
+			http.Error(w, "Failed to create request", http.StatusInternalServerError)
+			return
+		}
+
+		req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Failed to forward request", http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		responseBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(resp.StatusCode)
+		w.Write(responseBody)
+	}
+}
+
 func main() {
 	cfg := config.GetConfig()
 	
@@ -84,13 +122,14 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to dial server:", err)
 	}
-	
+	/*
 	conn2 , err := grpc.DialContext(
 		context.Background(),
 		cfg.EncountersServiceAddress,
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
+	*/
 
 	conn3 , err := grpc.DialContext(
 		context.Background(),
@@ -114,6 +153,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}
+	/*
 	clientEncounter := greeter.NewEncounterServiceClient(conn2)
 	err = greeter.RegisterEncounterServiceHandlerClient(
 		context.Background(),
@@ -123,13 +163,14 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to register EncounterService gateway:", err)
 	}
+	
 	clientExecution := greeter.NewEncounterExecutionServiceClient(conn2)
 	err = greeter.RegisterEncounterExecutionServiceHandlerClient(
 		context.Background(),
 		gwmux,
 		clientExecution,
 	)
-
+	*/
 	clientStakeholder := greeter.NewStakeholderServiceClient(conn3)
 	err = greeter.RegisterStakeholderServiceHandlerClient(
 		context.Background(),
@@ -143,10 +184,14 @@ func main() {
 		gwmux,
 		clientAuthentication,
 	)
+	mux := http.NewServeMux()
+	mux.Handle("/api/", gwmux)
+	mux.HandleFunc("/api/encounter/createEncounter", ForwardToAWSAPI("POST", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/production/encounters"))
+	mux.HandleFunc("/api/encounter/getAll", ForwardToAWSAPI("GET", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/production/encounters"))
 
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
-		Handler: allowCORS(validateToken(gwmux)),
+		Handler: allowCORS(validateToken(mux)),
 	}
 
 	go func() {
