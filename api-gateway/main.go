@@ -43,6 +43,7 @@ func validateToken(next http.Handler) http.Handler {
             "/api/stakeholders/registration":    true,
 			"/api/encounter/createEncounter":    true,
 			"/api/encounter/getAll":    true,
+			"/api/encounter/deleteEncounter": true,
         }
 
 		if allowed, ok := allowedEndpoints[r.URL.Path]; ok && allowed {
@@ -82,6 +83,7 @@ func ForwardToAWSAPI(method string, awsAPIURL string) http.HandlerFunc {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
+
 
 		req, err := http.NewRequest(method, awsAPIURL, bytes.NewBuffer(body))
 		if err != nil {
@@ -186,8 +188,17 @@ func main() {
 	)
 	mux := http.NewServeMux()
 	mux.Handle("/api/", gwmux)
-	mux.HandleFunc("/api/encounter/createEncounter", ForwardToAWSAPI("POST", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/production/encounters"))
-	mux.HandleFunc("/api/encounter/getAll", ForwardToAWSAPI("GET", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/production/encounters"))
+	mux.HandleFunc("/api/encounter/createEncounter", ForwardToAWSAPI("POST", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/newproduction/encounters"))
+	mux.HandleFunc("/api/encounter/getAll", ForwardToAWSAPI("GET", "https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/newproduction/encounters"))
+	mux.HandleFunc("/api/encounter/deleteEncounter", func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		// Append the ID query parameter to the AWS API URL
+		ForwardToAWSAPI("DELETE", fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/newproduction/singleEncounter?ID=%s", id))(w, r)
+	})
 
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
