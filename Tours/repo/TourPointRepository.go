@@ -31,3 +31,18 @@ func (tr *TourPointRepository) GetTourPointsByTourID(tourID int64) ([]model.Tour
 	}
 	return tourPoints, nil
 }
+
+
+func (tpr *TourPointRepository) DeleteTourPoint(tourPointID int64) error {
+	return tpr.DatabaseConnection.Delete(&model.TourPoint{}, tourPointID).Error
+}
+
+func (tpr *TourPointRepository) UpdateTourPoint(tourPoint *model.TourPoint) error {
+	// Ažuriranje postojećeg tour point-a u bazi podataka
+	dbResult := tpr.DatabaseConnection.Model(&model.TourPoint{}).Where("id = ?", tourPoint.ID).Updates(tourPoint)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}
+

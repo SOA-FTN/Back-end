@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"tours/model"
 	"tours/repo"
@@ -27,23 +28,52 @@ func (ts *TourService) GetPublishedTours() ([]model.Tour, error) {
 	return tours, nil
 }
 
-func (ts *TourService) CreateTour(tour *model.Tour) error {
-
+func (ts *TourService) CreateTour(tour *model.Tour) (uint,error) {
+	fmt.Printf("Received tour: %+v\n", tour)
 	newTour := model.Tour{
 		Name:              tour.Name,
 		DifficultyLevel:   tour.DifficultyLevel,
 		Description:       tour.Description,
-		TStatus:           model.Draft,
+		Status:            tour.Status,
 		Price:             tour.Price,
 		UserId:            tour.UserId,
 		ArchivedDateTime:  tour.ArchivedDateTime,
 		PublishedDateTime: tour.PublishedDateTime,
 	}
+	fmt.Printf("Received tour: %+v\n", tour)
 	err := ts.TourRepository.CreateTour(&newTour)
 	if err != nil {
-		return err
+		return 0, err
 	}
+	return newTour.ID, nil
+}
+
+func(ts *TourService) PurchaseTours(userId int, tourIds []int) error {
+	for _, tourId := range tourIds {
+		// Kreiraj novi PurchasedTours objekat
+		purchasedTour := &model.PurchasedTours{
+			UserId: userId,
+			TourId: tourId,
+		}
+
+		// Pokušaj da sačuvaš PurchasedTours u bazi
+		err := ts.TourRepository.PurchaseTours(purchasedTour)
+		if err != nil {
+			log.Printf("Failed to purchase tour %d for user %d: %v", tourId, userId, err)
+			return err
+		}
+	}
+
+	log.Printf("Successfully purchased %d tours for user %d", len(tourIds), userId)
 	return nil
+}
+
+func (ts *TourService) GetPurchasedToursByUserID(userID int) ([]model.Tour, error) {
+	tours, err := ts.TourRepository.GetPurchasedTours(userID)
+	if err != nil {
+		return nil, err
+	}
+	return tours, nil
 }
 
 func (ts *TourService) GetToursByUserID(userID int) ([]model.Tour, error) {
@@ -123,7 +153,7 @@ func (ts *TourService) PublishTour(tourID int64) error {
 			return err
 		}
 
-		tour.TStatus = 1
+		tour.Status = 1
 
 		tour, err = ts.TourRepository.UpdateTour(tour)
 		if err != nil {
@@ -143,7 +173,7 @@ func (ts *TourService) ArchiveTour(tourID int64) error {
 		return err
 	}
 
-	tour.TStatus = 2
+	tour.Status = 2
 
 	tour, err = ts.TourRepository.UpdateTour(tour)
 	if err != nil {

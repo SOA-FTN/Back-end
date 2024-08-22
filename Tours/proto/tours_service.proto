@@ -1,0 +1,126 @@
+syntax = "proto3";
+option go_package="proto/TOURS";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+service ToursService {
+    rpc TourCreationRpc(TourCreationRequest) returns (TourCreationResponse);
+    rpc GetPublishedToursRpc(google.protobuf.Empty) returns (GetAllToursResponse);
+    rpc PurchaseToursRpc(PurchaseToursRequest) returns (PurchaseToursResponse);
+    rpc GetPurchasedToursRpc(UserPurchaseTourRequest) returns (UserPurchaseTourResponse);
+    rpc GetAuthorToursRpc(AuthorToursRequest) returns (AuthorToursResponse);
+    rpc UpdateTourRpc(UpdateTourRequest) returns (TourCreationResponse);
+}
+
+enum DifficultyLevel {
+    Easy = 0;
+    Moderate = 1;
+    Difficult = 2;
+}
+
+enum TourStatus {
+  Draft = 0;
+  Published = 1;
+  Archived = 2;
+}
+
+enum TourPointType {
+    Start = 0;
+    End = 1;
+    InBetween = 2;
+}
+
+message Tour {
+    uint64 id = 1;
+    string name = 2;
+    DifficultyLevel difficultyLevel = 3;
+    string description = 4;
+    TourStatus status = 5;
+    uint64 price = 6;
+    uint64 userId = 7;
+    google.protobuf.Timestamp publishedDateTime = 8;
+    google.protobuf.Timestamp archivedDateTime = 9;
+    repeated TourPoint tour_points = 10;
+}
+
+
+message TourPoint {
+    uint64 tourId = 1;
+    string name = 2;
+    string description = 3;
+    double latitude = 4;
+    double longitude = 5;
+    string imageUrl = 6;
+    TourPointType type = 7;
+}
+
+message TourCreationRequest {
+    string name = 1;
+    DifficultyLevel difficultyLevel = 2;
+    string description = 3;
+    TourStatus status = 4;
+    uint64 price = 5;
+    uint64 userId = 6;
+    google.protobuf.Timestamp publishedDateTime = 7;
+    google.protobuf.Timestamp archivedDateTime = 8;
+    repeated TourPoint tour_points = 9;
+}
+
+message TourCreationResponse{
+    uint64 tourId = 1;
+    string message = 2;
+}
+
+message GetAllToursResponse {
+    repeated Tour tours = 1;
+}
+
+message PurchaseToursRequest {
+    uint64 userId = 1;
+    repeated uint64 tourId = 2;
+}
+
+message PurchaseToursResponse{
+    string message = 1;
+}
+
+message UserPurchaseTourRequest{
+    uint64 userId = 1;
+}
+
+message UserPurchaseTourResponse{
+    repeated Tour tours = 1;
+}
+
+message AuthorToursRequest{
+    uint64 userId = 1;
+}
+
+message AuthorToursResponse{
+    repeated UpdateTourRequest tours = 1;
+}
+
+message UpdateTourRequest {
+    uint64 id = 1;
+    string name = 2;
+    DifficultyLevel difficultyLevel = 3;
+    string description = 4;
+    TourStatus status = 5;
+    uint64 price = 6;
+    uint64 userId = 7;
+    google.protobuf.Timestamp publishedDateTime = 8;
+    google.protobuf.Timestamp archivedDateTime = 9;
+    repeated UpdateTourPoint tourPoints = 10;
+}
+
+message UpdateTourPoint {
+    uint64 id = 1;
+    uint64 tourId = 2;
+    string name =3;
+    string description = 4;
+    double latitude = 5;
+    double longitude = 6;
+    string imageUrl = 7;
+    TourPointType type = 8;
+}

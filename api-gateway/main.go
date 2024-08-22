@@ -44,7 +44,19 @@ func validateToken(next http.Handler) http.Handler {
 			"/api/encounter/createEncounter":    true,
 			"/api/encounter/getAll":    true,
 			"/api/encounter/deleteEncounter": true,
-			"/api/stakeholders/getProfile":true
+			"/api/stakeholders/getProfile":true,
+			"/api/stakeholders/updateProfile":true,
+			"/api/encounter/getById":true,
+			"/api/encounter/update":true,
+			"/api/stakeholders/getAccounts":true,
+			"/api/stakeholders/changeStatus":true,
+			"/api/tours/createTours":true,
+			"/api/tours/getPublishedTours":true,
+			"/api/tours/getPurchasedTours/":true,
+			"/api/tours/getAuthorTours/":true,
+			"/api/tours/updateTour/":true,
+			"/api/encounter/getByAuthorId":true,
+			
         }
 
 		if allowed, ok := allowedEndpoints[r.URL.Path]; ok && allowed {
@@ -125,6 +137,17 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to dial server:", err)
 	}
+
+	conn2 , err := grpc.DialContext(
+		context.Background(),
+		cfg.ToursServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial Tours server:", err)
+	}
 	/*
 	conn2 , err := grpc.DialContext(
 		context.Background(),
@@ -140,11 +163,11 @@ func main() {
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	*/
+	
 	if err != nil {
 		log.Fatalln("Failed to dial Encounter server:", err)
 	}
-
+	*/
 	gwmux := runtime.NewServeMux()
 	
 	client := greeter.NewGreeterServiceClient(conn)
@@ -156,6 +179,13 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}
+
+	clientTours := greeter.NewToursServiceClient(conn2)
+	err = greeter.RegisterToursServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		clientTours,
+	)
 	/*
 	clientEncounter := greeter.NewEncounterServiceClient(conn2)
 	err = greeter.RegisterEncounterServiceHandlerClient(
@@ -200,12 +230,38 @@ func main() {
 			return
 		}
 		// Append the ID query parameter to the AWS API URL
-		ForwardToAWSAPI("DELETE", fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/newproduction/singleEncounter?ID=%s", id))(w, r)
+		ForwardToAWSAPI("DELETE", fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/singleEncounter?ID=%s", id))(w, r)
 	})
-	////////////////////////////////////
+	mux.HandleFunc("/api/encounter/getById",func(w http.ResponseWriter, r *http.Request) {
+		id:=r.URL.Query().Get("ID")
+		if id == "" {
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("GET",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/singleEncounter?ID=%s",id))(w,r)
+	})
+	mux.HandleFunc("/api/encounter/update",func(w http.ResponseWriter, r *http.Request) {
+		id:=r.URL.Query().Get("ID")
+		if id == "" {
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("PUT",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/singleEncounter?ID=%s",id))(w,r)
+	})
+
+	mux.HandleFunc("/api/encounter/getByAuthorId",func(w http.ResponseWriter, r *http.Request){
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("GET",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/encounters?ID=%s",id))(w,r)
+	})
+	//=====================================================================================================
 	mux.HandleFunc("/api/stakeholders/registration",ForwardToAWSAPI("POST","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders"))
 	mux.HandleFunc("/api/auth/login",ForwardToAWSAPI("POST","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/login"))
-	mux.HandleFunc("/api/stakeholders/getProfile",func(w http.ResponseWriter, r *http.Request){
+	mux.HandleFunc("/api/stakeholders/getProfile/",func(w http.ResponseWriter, r *http.Request){
 		id := r.URL.Query().Get("ID")
 		if id == "" {
 			// Ako ID nije prisutan, vratimo grešku
@@ -214,6 +270,53 @@ func main() {
 		}
 		ForwardToAWSAPI("GET", fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders?ID=%s", id))(w, r)
 	})
+	mux.HandleFunc("/api/stakeholders/updateProfile/",func(w http.ResponseWriter, r *http.Request){
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("PUT",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders?ID=%s",id))(w,r)
+	})
+	mux.HandleFunc("/api/stakeholders/getAccounts",ForwardToAWSAPI("GET","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/admin"))
+	mux.HandleFunc("/api/stakeholders/changeStatus",func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("PUT",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/admin?ID=%s",id))(w,r)
+	})
+	mux.HandleFunc("/api/stakeholders/addToCart",func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("PUT",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/shopping-cart?ID=%s",id))(w,r)
+	})
+	mux.HandleFunc("/api/stakeholders/getCart",func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("GET",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/shopping-cart?ID=%s",id))(w,r)
+	})
+	mux.HandleFunc("/api/stakeholders/clearCart",func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("ID")
+		if id == "" {
+			// Ako ID nije prisutan, vratimo grešku
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("DELETE",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/shopping-cart?ID=%s",id))(w,r)
+	})
+
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
 		Handler: allowCORS(validateToken(mux)),

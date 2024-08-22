@@ -1,14 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
-	"strconv"
-	"tours/model"
 	"tours/service"
-
-	"github.com/gorilla/mux"
 )
 
 type TourHandler struct {
@@ -20,7 +13,7 @@ func NewTourHandler(ts *service.TourService) *TourHandler {
 		TourService: ts,
 	}
 }
-
+/*
 func (th *TourHandler) CreateTourHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req model.CreateTourRequest
@@ -148,3 +141,4 @@ func (th *TourHandler) ArchiveTourHandler(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Tour archived successfully"})
 }
+*/

@@ -11,6 +11,7 @@ services:
     restart: always
     environment:
       DATABASE_URL: "host=toursdb user=postgres password=super dbname=SOA-tours sslmode=disable"
+      TOURS_SERVICE_ADDRESS: ${TOURS_SERVICE_ADDRESS}
     networks:
       - database
     ports:
@@ -193,11 +194,13 @@ services:
       GREETER_SERVICE_ADDRESS: greeter_service:8000
       ENCOUNTER_SERVICE_ADDRESS: encounters:8083
       STAKEHOLDERS_SERVICE_ADDRESS: stakeholders:8082
+      TOURS_SERVICE_ADDRESS: tours:8085
       GATEWAY_ADDRESS: ${GATEWAY_ADDRESS}
     depends_on:
       - greeter_service
       - encounters
       - stakeholders
+      - tours
     networks:
       - database
     logging: *fluent-bit
