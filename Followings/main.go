@@ -17,7 +17,7 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "8085"
+		port = "8089"
 	}
 
 	// Initialize context
@@ -41,6 +41,11 @@ func main() {
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
+	cors := gorillaHandlers.CORS(
+		gorillaHandlers.AllowedOrigins([]string{"*"}),
+		gorillaHandlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "PUT", "DELETE"}),
+		gorillaHandlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
 
 	router.Use(followingHandler.MiddlewareContentTypeSet)
 
@@ -63,7 +68,7 @@ func main() {
 	isFollowedNode := router.Methods(http.MethodPost).Subrouter()
 	isFollowedNode.HandleFunc("/isFollowing", followingHandler.IsFollowing)
 
-	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
+	//cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server
 	server := http.Server{

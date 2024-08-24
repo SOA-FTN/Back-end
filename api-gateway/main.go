@@ -56,6 +56,7 @@ func validateToken(next http.Handler) http.Handler {
 			"/api/tours/getAuthorTours/":true,
 			"/api/tours/updateTour/":true,
 			"/api/encounter/getByAuthorId":true,
+			"/api/encounter/getByTourId":true,
 			
         }
 
@@ -258,6 +259,15 @@ func main() {
 		}
 		ForwardToAWSAPI("GET",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/encounters?ID=%s",id))(w,r)
 	})
+
+	mux.HandleFunc("/api/encounter/getByTourId" , func(w http.ResponseWriter, r *http.Request) {
+		id:=r.URL.Query().Get("ID")
+		if id == "" {
+			http.Error(w, "Missing ID query parameter", http.StatusBadRequest)
+			return
+		}
+		ForwardToAWSAPI("GET",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/encounters/tourEncounter?ID=%s",id))(w,r)
+	})
 	//=====================================================================================================
 	mux.HandleFunc("/api/stakeholders/registration",ForwardToAWSAPI("POST","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders"))
 	mux.HandleFunc("/api/auth/login",ForwardToAWSAPI("POST","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/login"))
@@ -316,6 +326,9 @@ func main() {
 		}
 		ForwardToAWSAPI("DELETE",fmt.Sprintf("https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/shopping-cart?ID=%s",id))(w,r)
 	})
+
+	mux.HandleFunc("/api/stakeholders/createAppRating",ForwardToAWSAPI("POST","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/ratings"))
+	mux.HandleFunc("/api/stakeholders/getRatings",ForwardToAWSAPI("GET","https://jfhz3ftx19.execute-api.us-east-1.amazonaws.com/test/stakeholders/ratings"))
 
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
